@@ -1,0 +1,39 @@
+﻿Сборка начата 23.08.2015 23:17:46.
+     1>Проект "D:\OneDrive\Проекты\Безопасное хранилище\Visual Studio\Projects\XBOX360Test\XBOX360Test\XBOX360Test.vcxproj" в узле 2 (целевые объекты Build).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         main.cpp
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(91): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _itoa. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\stdlib.h(1316): note:  см. объявление "itoa"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(92): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _itoa. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\stdlib.h(1316): note:  см. объявление "itoa"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(93): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _itoa. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\stdlib.h(1316): note:  см. объявление "itoa"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(94): warning C4996: 'itoa': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _itoa. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\stdlib.h(1316): note:  см. объявление "itoa"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(101): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(119): note:  см. объявление "strcpy"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(102): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(90): note:  см. объявление "strcat"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(104): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(90): note:  см. объявление "strcat"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(105): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(90): note:  см. объявление "strcat"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(107): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(90): note:  см. объявление "strcat"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(108): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(90): note:  см. объявление "strcat"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(110): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(90): note:  см. объявление "strcat"
+     1>d:\onedrive\проекты\безопасное хранилище\visual studio\projects\xbox360test\xbox360test\main.cpp(111): warning C4996: 'strcat': This function or variable may be unsafe. Consider using strcat_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+         c:\program files (x86)\windows kits\10\include\10.0.10150.0\ucrt\string.h(90): note:  см. объявление "strcat"
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\OneDrive\Проекты\Безопасное хранилище\Visual Studio\Projects\XBOX360Test\Debug\XBOX360Test.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"D:\OneDrive\Проекты\Безопасное хранилище\Visual Studio\Projects\XBOX360Test\Debug\XBOX360Test.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\OneDrive\Проекты\Безопасное хранилище\Visual Studio\Projects\XBOX360Test\Debug\XBOX360Test.lib" /MACHINE:X86 /SAFESEH Debug\CXBOXController.obj
+         Debug\main.obj
+     1>CXBOXController.obj : warning LNK4075: эх єўшЄ√трхЄё  "/EDITANDCONTINUE" шч-чр ёяхЎшЇшърЎшш "/SAFESEH"
+         XBOX360Test.vcxproj -> D:\OneDrive\Проекты\Безопасное хранилище\Visual Studio\Projects\XBOX360Test\Debug\XBOX360Test.exe
+     1>Сборка проекта "D:\OneDrive\Проекты\Безопасное хранилище\Visual Studio\Projects\XBOX360Test\XBOX360Test\XBOX360Test.vcxproj" завершена (целевые объекты Build).
+
+Сборка успешно завершена.
+
+Затраченное время: 00:00:01.74

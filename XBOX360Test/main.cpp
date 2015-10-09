@@ -1,5 +1,14 @@
-#include "CXBOXController.h"		//Библиотека работы с геймпадом
-#include <iostream>					//Библиотеки ввода вывода в консоль
+/*
+Шаблон сообщения:
+S_1_;_2_;_3_n
+_1_ - длина части сообщения с координатами положения джойстика (т.е от _2_ до n включительно)
+_2_ - позиция стика геймпада по оси X
+_3_ - позиция стика геймпада по оси Y
+*/
+
+
+#include "CXBOXController.h"		//Библиотека работы с геймпадом, с сайта http://www.codeproject.com/Articles/26949/Xbox-Controller-Input-in-C-with-XInput
+#include <iostream>					
 #include <iomanip> 
 
 #include <cstdlib>
@@ -7,14 +16,14 @@
 #include <Windows.h>				//Библиотека для работы с функциями перевода каретки на нужную строку
 #include <process.h>				//Библиотека для работы с несколькими потоками
 
-CXBOXController* Player1;
+CXBOXController* Player1;			//Обьект для работы с геймпадом
 
 //COM порт:
 HANDLE hSerial;						//Обработчик COM порта
 wchar_t buffPortName[7];			//Временная переменная хранения имени COM порта
 
 bool flgOK = false;					//Флаг нормальной работы потока
-bool flgStop = false;				//Флаг окончания потока
+bool flgStop = false;				//Флаг окончания работы потока
 
 const int SLEEP_MSEC = 100;			//Задержка между отправками сообщений
 
@@ -106,14 +115,15 @@ void Thread(void* pParams)			//Поток для передачи данных к Arduino
 			strcat(data, "n");
 			
 			//Передаём данные:
-			DWORD dwSize = sizeof(char)*(dataLen + 2 + intlen(dataLen) + 1);		 // размер этой строки
-			DWORD dwBytesWritten;			                                     // тут будет количество собственно переданных байт
+			DWORD dwSize = sizeof(char)*(dataLen + 2 + intlen(dataLen) + 1);		 // размер передаваемой строки
+			DWORD dwBytesWritten;													 // тут будет количество собственно переданных байт
 			
 			BOOL iRet = WriteFile(hSerial, data, dwSize, &dwBytesWritten, NULL);
 
 			delete[] data;
 			delete[] posLX;
 			delete[] posLY;
+
 			Sleep(SLEEP_MSEC);
 		}
 	}
@@ -130,6 +140,10 @@ void Thread(void* pParams)			//Поток для передачи данных к Arduino
 int main(int argc, char* argv[])
 {
 	int nmbGmpd;					//Переменная для хранения номера геймпада
+
+	/*
+		To Do: добавть try-catch блок вместо if условий проверки введённых данных
+	*/
 
 error:								//Если введённое значение несоответсвует условию то его надо ввести по новой
 	

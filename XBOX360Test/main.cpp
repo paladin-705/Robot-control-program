@@ -61,11 +61,13 @@ void Thread(void* pParams)			//Поток для передачи данных к Arduino
 			{
 				*iPosLX = Player1->GetState().Gamepad.sThumbRX;
 				*iPosLY = Player1->GetState().Gamepad.sThumbLY;
+				break;
 			}
-			case 3:
+			case 2:
 			{
 				*iPosLX = Player1->GetState().Gamepad.sThumbLX;
 				*iPosLY = Player1->GetState().Gamepad.sThumbRY;
+				break;
 			}
 			default:
 			{

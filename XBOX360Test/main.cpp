@@ -69,6 +69,12 @@ void Thread(void* pParams)			//Поток для передачи данных к Arduino
 				*iPosLY = Player1->GetState().Gamepad.sThumbRY;
 				break;
 			}
+			case 3:
+			{
+				*iPosLX = Player1->GetState().Gamepad.sThumbRX;
+				*iPosLY = Player1->GetState().Gamepad.sThumbRY;
+				break;
+			}
 			default:
 			{
 				*iPosLX = Player1->GetState().Gamepad.sThumbLX;
@@ -144,6 +150,7 @@ error:								//Если введённое значение несоответсвует условию то его надо ввест
 	std::cout << "0-Left stick" << std::endl;
 	std::cout << "1-Left(Y axis) and Right(X axis) stick)" << std::endl;
 	std::cout << "2-Left(X axis) and Right(Y axis) stick)" << std::endl;
+	std::cout << "3-Right stick" << std::endl;
 	std::cout << "Enter Stick mode: ";
 	std::cin >> STICK_MODE;
 

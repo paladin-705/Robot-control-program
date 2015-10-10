@@ -8,6 +8,8 @@ _3_ - позиция стика геймпада по оси Y
 
 
 #include "CXBOXController.h"		//Библиотека работы с геймпадом, с сайта http://www.codeproject.com/Articles/26949/Xbox-Controller-Input-in-C-with-XInput
+#include "Functions.h"
+
 #include <iostream>					
 #include <iomanip> 
 
@@ -25,46 +27,9 @@ wchar_t buffPortName[7];			//Временная переменная хранения имени COM порта
 bool flgOK = false;					//Флаг нормальной работы потока
 bool flgStop = false;				//Флаг окончания работы потока
 
+int STICK_MODE;						//Определяет режим управления (один или два стика)
+
 const int SLEEP_MSEC = 100;			//Задержка между отправками сообщений
-
-int intlen(int a)					//Функция определения длинны числа
-{
-	int len = 0;
-
-	if (a < 0)
-	{
-		a *= (-1);
-		len++;
-	}
-
-	while (a > 0)
-	{
-		a /= 10;
-		len++;
-	}
-	return len;
-}
-
-void cls()							//Функция очистки экрана
-{
-	COORD position;                                     // Объявление необходимой структуры
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // Получение дескриптора устройства стандартного вывода
-
-	position.X = 0;										// Установка координаты X
-	position.Y = 2;										// Установка координаты Y
-
-	Sleep(100);											//Останавливаем выполнение программы на 100мс для прекращения дёрганья символов на экране
-
-	SetConsoleCursorPosition(hConsole, position);		//Устанавливаем курсор в нужную позицию
-
-	//Очищаем нужные строчки:
-	std::cout	<< "                                          " << std::endl
-				<< "                                          " << std::endl
-				<< "                                          " << std::endl
-				<< "                                          " << std::endl;	
-
-	SetConsoleCursorPosition(hConsole, position);		//Устанавливаем курсор в нужную позицию
-}
 
 void Thread(void* pParams)			//Поток для передачи данных к Arduino
 {
@@ -84,8 +49,31 @@ void Thread(void* pParams)			//Поток для передачи данных к Arduino
 		{
 			int dataLen = 0;
 
-			*iPosLX = Player1->GetState().Gamepad.sThumbLX;
-			*iPosLY = Player1->GetState().Gamepad.sThumbLY;
+			switch (STICK_MODE)
+			{
+			case 0:
+			{
+				*iPosLX = Player1->GetState().Gamepad.sThumbLX;
+				*iPosLY = Player1->GetState().Gamepad.sThumbLY;
+				break;
+			}
+			case 1:
+			{
+				*iPosLX = Player1->GetState().Gamepad.sThumbRX;
+				*iPosLY = Player1->GetState().Gamepad.sThumbLY;
+			}
+			case 3:
+			{
+				*iPosLX = Player1->GetState().Gamepad.sThumbLX;
+				*iPosLY = Player1->GetState().Gamepad.sThumbRY;
+			}
+			default:
+			{
+				*iPosLX = Player1->GetState().Gamepad.sThumbLX;
+				*iPosLY = Player1->GetState().Gamepad.sThumbLY;
+				break;
+			}
+			}
 
 			lenLX = intlen(*iPosLX);
 			lenLY = intlen(*iPosLY);
@@ -149,6 +137,13 @@ error:								//Если введённое значение несоответсвует условию то его надо ввест
 	
 	std::cout << "Enter number of gamepad(1-4): ";
 	std::cin >> nmbGmpd;
+
+	std::cout << "Control mode: " << std::endl;
+	std::cout << "0-Left stick" << std::endl;
+	std::cout << "1-Left(Y axis) and Right(X axis) stick)" << std::endl;
+	std::cout << "2-Left(X axis) and Right(Y axis) stick)" << std::endl;
+	std::cout << "Enter Stick mode: ";
+	std::cin >> STICK_MODE;
 
 	std::cout << "Enter COM port number(COM_): ";
 	std::wcin >> buffPortName;

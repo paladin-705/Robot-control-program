@@ -215,6 +215,8 @@ error:								//Если введённое значение несоответсвует условию то его надо ввест
 	std::cout << "Instructions:\n";
 	std::cout << "[BACK] Exit\n";
 	
+	system("cls");
+
 	while(true)
 	{
 		if(Player1->IsConnected())

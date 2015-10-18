@@ -1,8 +1,9 @@
-﻿Сборка начата 10.10.2015 15:00:25.
+﻿Сборка начата 18.10.2015 15:04:57.
      1>Проект "D:\OneDrive\Проекты\Безопасное хранилище\Visual Studio\Projects\Gamepad-controller-for-arduino\XBOX360Test\XBOX360Test.vcxproj" в узле 2 (целевые объекты Build).
      1>C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (Release\) contains files shared from another project (XBOX360Test.vcxproj).  This can lead to incorrect clean and rebuild behavior.
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Release\\" /Fd"Release\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt Functions.cpp main.cpp
+         Functions.cpp
          main.cpp
      1>main.cpp(103): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
          C:\Program Files (x86)\Windows Kits\10\Include\10.0.10150.0\ucrt\string.h(119): note:  см. объявление "strcpy"
@@ -33,13 +34,11 @@
          Создание кода
          2 of 410 functions ( 0.5%) were compiled, the rest were copied from previous compilation.
            0 functions were new in current compilation
-           1 functions had inline decision re-evaluated but remain unchanged
+           0 functions had inline decision re-evaluated but remain unchanged
          Создание кода завершено
-     1>Functions.obj : warning LNK4020: запись типа в "d:\onedrive\проекты\безопасное хранилище\visual studio\projects\gamepad-controller-for-arduino\xbox360test\release\vc140.pdb" повреждена; некоторые символы и типы могут быть недоступными из отладчика
-     1>main.obj : warning LNK4020: запись типа в "d:\onedrive\проекты\безопасное хранилище\visual studio\projects\gamepad-controller-for-arduino\xbox360test\release\vc140.pdb" повреждена; некоторые символы и типы могут быть недоступными из отладчика
          XBOX360Test.vcxproj -> D:\OneDrive\Проекты\Безопасное хранилище\Visual Studio\Projects\Gamepad-controller-for-arduino\Release\Gamepad-controller-for-arduino.exe
      1>Сборка проекта "D:\OneDrive\Проекты\Безопасное хранилище\Visual Studio\Projects\Gamepad-controller-for-arduino\XBOX360Test\XBOX360Test.vcxproj" завершена (целевые объекты Build).
 
 Сборка успешно завершена.
 
-Затраченное время: 00:00:06.41
+Затраченное время: 00:00:06.28

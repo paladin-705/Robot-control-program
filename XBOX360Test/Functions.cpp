@@ -41,3 +41,9 @@ void cls()												//Функция очистки экрана
 
 	SetConsoleCursorPosition(hConsole, position);		//Устанавливаем курсор в нужную позицию
 }
+
+void delayAndCls()
+{
+	system("pause");
+	system("cls");
+}

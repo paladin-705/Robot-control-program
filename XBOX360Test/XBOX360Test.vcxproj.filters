@@ -24,12 +24,18 @@
     <ClCompile Include="Functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Serial lib\Serial.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CXBOXController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Functions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Serial lib\Serial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

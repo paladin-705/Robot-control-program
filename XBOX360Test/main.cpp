@@ -18,7 +18,11 @@ _3_ - позиция стика геймпада по оси Y
 #include <Windows.h>				//Библиотека для работы с функциями перевода каретки на нужную строку
 #include <process.h>				//Библиотека для работы с несколькими потоками
 
+#include "Serial lib\Serial.h"		//Библиотека для работы с COM портом
+
 CXBOXController* Player1;			//Обьект для работы с геймпадом
+
+Serial serial;						//Обьект COM порта
 
 //COM порт:
 HANDLE hSerial;						//Обработчик COM порта
@@ -111,10 +115,7 @@ void Thread(void* pParams)			//Поток для передачи данных к Arduino
 			strcat(data, "n");
 			
 			//Передаём данные:
-			DWORD dwSize = sizeof(char)*(dataLen + 2 + intlen(dataLen) + 1);		 // размер передаваемой строки
-			DWORD dwBytesWritten;													 // тут будет количество собственно переданных байт
-			
-			BOOL iRet = WriteFile(hSerial, data, dwSize, &dwBytesWritten, NULL);
+			serial.cSend(data, (sizeof(char)*(dataLen + 2 + intlen(dataLen) + 1)));	//Костыль с длиной передаваемого сообщения
 
 			delete[] data;
 			delete[] posLX;
@@ -158,47 +159,49 @@ error:								//Если введённое значение несоответсвует условию то его надо ввест
 	std::wcin >> buffPortName;
 
 	//Работа с COM портом:
-	LPCTSTR sPortName = buffPortName;
+	serial.setCOMname(buffPortName);
 
-	hSerial = ::CreateFile(sPortName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	
-	if (hSerial == INVALID_HANDLE_VALUE)
+	switch (serial.initCOM())
 	{
-		if (GetLastError() == ERROR_FILE_NOT_FOUND)
-		{
-			std::cout << "serial port does not exist.\n";
-		}
-		std::cout << "some other error occurred.\n";
-
-		system("pause");
-		system("cls");
-		goto error;
-	}
-
-	DCB dcbSerialParams = { 0 };
-	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	if (!GetCommState(hSerial, &dcbSerialParams))
+	case 0:
 	{
-		std::cout << "getting state error\n";
-
-		system("pause");
-		system("cls");
-		goto error;
+		std::cout << "COM port conected\n";
+		delayAndCls();
+		break;
 	}
-	dcbSerialParams.BaudRate = CBR_9600;
-	dcbSerialParams.ByteSize = 8;
-	dcbSerialParams.StopBits = ONESTOPBIT;
-	dcbSerialParams.Parity = NOPARITY;
-	if (!SetCommState(hSerial, &dcbSerialParams))
+	case 1:
 	{
-		std::cout << "error setting serial port state\n";
+		std::cout << "\aSerial port does not exist.\n";
+		delayAndCls();
 
-		system("pause");
-		system("cls");
-		goto error;
+		return 0;
+		break;
 	}
+	case 2:
+	{
+		std::cout << "\aSome other error occurred.\n";
+		delayAndCls();
 
-	//----------------------------------------------------------------------
+		return 0;
+		break;
+	}
+	case 3:
+	{
+		std::cout << "\aGetting state error\n";
+		delayAndCls();
+
+		return 0;
+		break;
+	}
+	case 4:
+	{
+		std::cout << "\aError setting serial port state\n";
+		delayAndCls();
+
+		return 0;
+		break;
+	}
+	}
 
 	if (nmbGmpd < 1 || nmbGmpd > 4)
 	{
@@ -246,6 +249,7 @@ error:								//Если введённое значение несоответсвует условию то его надо ввест
 			break;
 		}
 	}
+
 	delete(Player1);				//Удаляем обьект Player1
 	return( 0 );
 }

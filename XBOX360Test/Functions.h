@@ -3,3 +3,5 @@
 int intlen(int);
 
 void cls();
+
+void delayAndCls();

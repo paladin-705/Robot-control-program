@@ -2,7 +2,9 @@
 
 Serial::Serial()
 {
-
+	serialPort = 0;
+	sPortName = 0;
+	baudRate = 0;
 }
 
 Serial::Serial(wchar_t *portNumb)

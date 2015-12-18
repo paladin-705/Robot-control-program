@@ -1,4 +1,5 @@
 #include "Serial.h"
+#include <iostream>
 
 Serial::Serial()
 {
@@ -18,6 +19,14 @@ Serial::Serial(LPCTSTR *portNumb)
 }
 
 Serial::~Serial()
+{
+	CloseHandle(serialPort);
+	serialPort = 0;
+	sPortName = 0;
+	baudRate = 0;
+}
+
+void Serial::close()
 {
 	CloseHandle(serialPort);
 	serialPort = 0;
@@ -133,9 +142,20 @@ void Serial::fReadCOM(std::ofstream *outptf)
 	}
 }
 
-int Serial::cSend(char *data, int len)
+
+int Serial::cSend(unsigned char *data)
 {
-	DWORD dwSize = len;   
+	DWORD dwSize = sizeof(*data);   
+	DWORD dwBytesWritten;
+
+	BOOL iRet = WriteFile(serialPort, data, dwSize, &dwBytesWritten, NULL);
+
+	return dwBytesWritten;
+}
+
+int Serial::cSend(unsigned char *data, int len)
+{
+	DWORD dwSize = len;
 	DWORD dwBytesWritten;
 
 	BOOL iRet = WriteFile(serialPort, data, dwSize, &dwBytesWritten, NULL);

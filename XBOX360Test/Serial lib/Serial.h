@@ -12,14 +12,16 @@ public:
 	~Serial();
 
 	//Functions:
-	void setCOMname(wchar_t *);
-	void setCOMname(LPCTSTR *);
 	int initCOM(void);
 	int initCOM(int);
+	void setCOMname(wchar_t *);
+	void setCOMname(LPCTSTR *);
+	void close();
 
 	char cReadCOM();
 	void fReadCOM(std::ofstream *);
-	int cSend(char *, int);
+	int cSend(unsigned char *);
+	int cSend(unsigned char *, int);
 
 private:
 

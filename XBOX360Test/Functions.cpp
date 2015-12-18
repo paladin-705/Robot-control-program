@@ -3,6 +3,12 @@
 
 #include "Functions.h"
 
+void SetColor(ConsoleColorCOUT text)
+{
+	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hStdOut, (WORD)(text));
+}
+
 int intlen(int a)					//Функция определения длинны числа
 {
 	int len = 0;

@@ -56,6 +56,7 @@ void sendMessageThread(int, int);
 
 int main()
 {
+	SetColor(LightGray);
 	loadSetting();
 
 	int nmbGmpd;
@@ -63,20 +64,33 @@ int main()
 	int wMode;
 	wchar_t buffPortName[7];
 
+	SetColor(White);
 	cout << "Work mode: " << endl;
+	SetColor(LightGray);
 	cout << "0-Control" << endl;
 	cout << "1-Record patch" << endl;
 	cout << "2-Play patch" << endl;
+
+	SetColor(Cyan);
+	cout << "----------------------------------" << endl;
+	SetColor(White);
 	cout << "Enter Work mode: ";
+	SetColor(Yellow);
 	cin >> wMode;
+
+	SetColor(Cyan);
 	cout << "----------------------------------" << endl;
 
 error:
 	flgStop = false;
 	flgRecording = RECORDING_DEFAULT;
 
+	SetColor(White);
 	cout << "Enter COM port number(COM_): ";
+	SetColor(Yellow);
 	wcin >> buffPortName;
+	SetColor(Cyan);
+	cout << "----------------------------------" << endl;
 
 	//---------------------------
 	serial.setCOMname(buffPortName);
@@ -85,13 +99,25 @@ error:
 	{
 	case 0:
 	{
+		SetColor(Green);
 		std::cout << "COM port conected\n";
+
+		SetColor(Cyan);
+		cout << "----------------------------------" << endl;
+
+		SetColor(LightGray);
 		delayAndCls();
 		break;
 	}
 	case 1:
 	{
+		SetColor(Red);
 		std::cout << "\aSerial port does not exist.\n";
+
+		SetColor(Cyan);
+		cout << "----------------------------------" << endl;
+
+		SetColor(LightGray);
 		delayAndCls();
 
 		return 0;
@@ -99,7 +125,13 @@ error:
 	}
 	case 2:
 	{
+		SetColor(Red);
 		std::cout << "\aSome other error occurred.\n";
+
+		SetColor(Cyan);
+		cout << "----------------------------------" << endl;
+
+		SetColor(LightGray);
 		delayAndCls();
 
 		return 0;
@@ -107,7 +139,13 @@ error:
 	}
 	case 3:
 	{
+		SetColor(Red);
 		std::cout << "\aGetting state error\n";
+
+		SetColor(Cyan);
+		cout << "----------------------------------" << endl;
+
+		SetColor(LightGray);
 		delayAndCls();
 
 		return 0;
@@ -115,7 +153,13 @@ error:
 	}
 	case 4:
 	{
+		SetColor(Red);
 		std::cout << "\aError setting serial port state\n";
+
+		SetColor(Cyan);
+		cout << "----------------------------------" << endl;
+
+		SetColor(LightGray);
 		delayAndCls();
 
 		return 0;
@@ -147,10 +191,16 @@ error:
 
 					cout << "Work mode: " << wMode << "   " << "Serial port: ";
 					wcout << buffPortName << endl;
+
+					SetColor(Green);
 					cout << "Left stick:\n";
+					SetColor(White);
 					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbLX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbLY << endl;
+					SetColor(Green);
 					cout << "Right stick:\n";
+					SetColor(White);
 					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbRX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbRY << endl;
+					SetColor(LightGray);
 
 					if (Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
 					{
@@ -164,8 +214,14 @@ error:
 				}
 				else
 				{
-					std::cout << "\t\aERROR! PLAYER " << nmbGmpd << " - XBOX 360 Controller Not Found!\n";
+					SetColor(Red);
+					cout << "----------------------------------" << endl;
+					SetColor(LightRed);
+					std::cout << "\aERROR! PLAYER " << nmbGmpd << " - XBOX 360 Controller Not Found!\n";
 					std::cout << "Press Any Key To Exit.\n";
+					SetColor(Red);
+					cout << "----------------------------------" << endl;
+					SetColor(LightGray);
 
 					g_lock.lock();
 					flgStop = true;
@@ -178,7 +234,13 @@ error:
 		}
 		else
 		{
-			std::cout << "\t\aERROR! PLAYER " << nmbGmpd << " - XBOX 360 Controller Not Found!\n";
+			SetColor(Red);
+			cout << "----------------------------------" << endl;
+			SetColor(LightRed);
+			std::cout << "\aERROR! PLAYER " << nmbGmpd << " - XBOX 360 Controller Not Found!\n";
+			SetColor(Red);
+			cout << "----------------------------------" << endl;
+			SetColor(LightGray);
 
 			g_lock.lock();
 			flgStop = true;
@@ -232,16 +294,29 @@ error:
 						g_lock.unlock();
 					}
 					
-					if(recordingState == 1)
-						cout << "Recording enable\n" << endl;
+					if (recordingState == 1)
+					{
+						SetColor(Green);
+						cout << "Recording enable" << endl;
+						SetColor(LightGray);
+					}
 					if (recordingState == 2)
-						cout << "Recording disable\n" << endl;
-					
+					{
+						SetColor(Red);
+						cout << "Recording disable" << endl;
+						SetColor(LightGray);
+					}
+
+					SetColor(Green);
 					cout << "Left stick:\n";
+					SetColor(White);
 					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbLX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbLY << endl;
+					SetColor(Green);
 					cout << "Right stick:\n";
+					SetColor(White);
 					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbRX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbRY << endl;
-					
+					SetColor(LightGray);
+
 					if (Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
 					{
 						g_lock.lock();
@@ -254,8 +329,14 @@ error:
 				}
 				else
 				{
-					std::cout << "\t\aERROR! PLAYER " << nmbGmpd << " - XBOX 360 Controller Not Found!\n";
+					SetColor(Red);
+					cout << "----------------------------------" << endl;
+					SetColor(LightRed);
+					std::cout << "\aERROR! PLAYER " << nmbGmpd << " - XBOX 360 Controller Not Found!\n";
 					std::cout << "Press Any Key To Exit.\n";
+					SetColor(Red);
+					cout << "----------------------------------" << endl;
+					SetColor(LightGray);
 
 					g_lock.lock();
 					flgStop = true;
@@ -268,7 +349,13 @@ error:
 		}
 		else
 		{
-			std::cout << "\t\aERROR! PLAYER " << nmbGmpd << " - XBOX 360 Controller Not Found!\n";
+			SetColor(Red);
+			cout << "----------------------------------" << endl;
+			SetColor(LightRed);
+			std::cout << "\aERROR! PLAYER " << nmbGmpd << " - XBOX 360 Controller Not Found!\n";
+			SetColor(Red);
+			cout << "----------------------------------" << endl;
+			SetColor(LightGray);
 
 			g_lock.lock();
 			flgStop = true;
@@ -286,8 +373,11 @@ error:
 	}
 	case 2:
 	{
+		SetColor(White);
 		cout << "Enter file patch: ";
+		SetColor(Yellow);
 		cin >> replayPatch;
+		SetColor(LightGray);
 		system("cls");
 
 		thread sendMesThr(sendMessageThread, sMode, wMode);
@@ -602,7 +692,10 @@ void sendMessageThread(int stickMode, int workMode)
 		for (int i = 0;i < size;i++)
 		{
 			cls();
+
+			SetColor(White);
 			cout << "Work mode: " << workMode << endl;
+			SetColor(LightGray);
 
 			message[1] = lMotorDir[i];
 			message[2] = rMotorDir[i];
@@ -610,7 +703,26 @@ void sendMessageThread(int stickMode, int workMode)
 			message[4] = rMotorSpeed[i];
 			serial.cSend(message, 6);
 
-			cout << setw(3) << left << (int)(message[1]) << " - " << setw(3) << left << (int)(message[2]) << " - " << setw(3) << left << (int)(message[3]) << " - " << setw(3) << left << (int)(message[4]) << endl;
+			SetColor(Cyan);
+			cout << "----------------------------------" << endl;
+
+			SetColor(Green);
+			cout << setw(3) << left << (int)(message[1]);
+			SetColor(LightGray);
+			cout << " - "; 
+			SetColor(Green);
+			cout << setw(3) << left << (int)(message[2]);
+			SetColor(LightGray);
+			cout << " - ";
+			SetColor(Green);
+			cout << setw(3) << left << (int)(message[3]);
+			SetColor(LightGray);
+			cout << " - ";
+			SetColor(Green);
+			cout << setw(3) << left << (int)(message[4]) << endl;
+
+			SetColor(Cyan);
+			cout << "----------------------------------" << endl;
 
 			//-------------------------------------
 			int x = (i * 20) / (size);
@@ -628,12 +740,24 @@ void sendMessageThread(int stickMode, int workMode)
 
 			}
 			indicator[20] = '\0';
-			cout << "\r" << "Loading: " << indicator << "| " << setw(3) << left << (int)((float)(i) / (size - 1) * 100) << "%";
+
+			SetColor(White);
+			cout << "\r" << "Loading: "; 
+			SetColor(Green);
+			cout << indicator;
+			SetColor(White);
+			cout << "| " << setw(3) << left << (int)((float)(i) / (size - 1) * 100) << "%";
+			SetColor(LightGray);
 			//-------------------------------------
 
 			Sleep(SLEEP_MSEC);
 		}
 		cout << endl;
+		
+		SetColor(Cyan);
+		cout << "----------------------------------" << endl;
+		SetColor(LightGray);
+
 		break;
 	}
 	}
@@ -643,12 +767,21 @@ void enterGamepadMode(int *nmbGmpd, int *sMode)
 {
 	bool flg;
 	do {
+		SetColor(White);
 		std::cout << "Enter number of gamepad(1-4): ";
+		SetColor(Yellow);
 		std::cin >> *nmbGmpd;
 
 		if (*nmbGmpd < 1 || *nmbGmpd > 4)
 		{
+			SetColor(Red);
+			cout << "----------------------------------" << endl;
+			SetColor(LightRed);
 			std::cout << "\aincorrect number\n";
+			SetColor(Red);
+			cout << "----------------------------------" << endl;
+			SetColor(LightGray);
+
 			delayAndCls();
 			flg = true;
 		}
@@ -656,11 +789,25 @@ void enterGamepadMode(int *nmbGmpd, int *sMode)
 
 	} while (flg);
 
+	SetColor(Cyan);
+	cout << "----------------------------------" << endl;
+
+	SetColor(White);
 	std::cout << "Control mode: " << std::endl;
+	SetColor(LightGray);
+
 	std::cout << "0-Left stick" << std::endl;
 	std::cout << "1-Left(Y axis) and Right(X axis) stick)" << std::endl;
 	std::cout << "2-Left(X axis) and Right(Y axis) stick)" << std::endl;
 	std::cout << "3-Right stick" << std::endl;
+	
+	SetColor(Cyan);
+	cout << "----------------------------------" << endl;
+	
+	SetColor(White);
 	std::cout << "Enter Stick mode: ";
+	SetColor(Yellow);
 	std::cin >> *sMode;
+
+	SetColor(LightGray);
 }

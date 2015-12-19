@@ -53,6 +53,7 @@ void loadSetting();
 void enterGamepadMode(int *, int *);
 void motorsControll(int, int, unsigned char *, unsigned char *, unsigned char *, unsigned char *);
 void sendMessageThread(int, int);
+void stopSendMessageThread();
 
 int main()
 {
@@ -159,10 +160,7 @@ error:
 
 					if (Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
 					{
-						g_lock.lock();
-						flgStop = true;
-						g_lock.unlock();
-
+						stopSendMessageThread();
 						system("pause");
 						break;
 					}
@@ -171,9 +169,7 @@ error:
 				{
 					coutMessage(Error, "ERROR! XBOX 360 Controller Not Found!");
 
-					g_lock.lock();
-					flgStop = true;
-					g_lock.unlock();
+					stopSendMessageThread();
 
 					system("pause");
 					break;
@@ -184,9 +180,7 @@ error:
 		{
 			coutMessage(Error, "ERROR! XBOX 360 Controller Not Found!");
 
-			g_lock.lock();
-			flgStop = true;
-			g_lock.unlock();
+			stopSendMessageThread();
 
 			delete(Player);
 			serial.close();
@@ -253,10 +247,7 @@ error:
 
 					if (Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
 					{
-						g_lock.lock();
-						flgStop = true;
-						g_lock.unlock();
-
+						stopSendMessageThread();
 						system("pause");
 						break;
 					}
@@ -265,9 +256,7 @@ error:
 				{
 					coutMessage(Error, "ERROR! XBOX 360 Controller Not Found!");
 
-					g_lock.lock();
-					flgStop = true;
-					g_lock.unlock();
+					stopSendMessageThread();
 
 					system("pause");
 					break;
@@ -278,9 +267,7 @@ error:
 		{
 			coutMessage(Error, "ERROR! XBOX 360 Controller Not Found!");
 
-			g_lock.lock();
-			flgStop = true;
-			g_lock.unlock();
+			stopSendMessageThread();
 
 			delete(Player);
 			serial.close();
@@ -306,9 +293,7 @@ error:
 	}
 	}
 
-	g_lock.lock();
-	flgStop = true;
-	g_lock.unlock();
+	stopSendMessageThread();
 	serial.close();
 
 	return 0;
@@ -707,4 +692,11 @@ void enterGamepadMode(int *nmbGmpd, int *sMode)
 	std::cin >> *sMode;
 
 	SetColor(LightGray);
+}
+
+void stopSendMessageThread()
+{
+	g_lock.lock();
+	flgStop = true;
+	g_lock.unlock();
 }

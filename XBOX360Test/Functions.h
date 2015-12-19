@@ -20,7 +20,23 @@ enum ConsoleColorCOUT
 	White = 15,
 };
 
+enum MessageType
+{
+	Success = 0,
+	Error = 1,
+	Header = 2,
+	EnterData = 3,
+	Line = 4,
+	GamepadData = 5,
+	RecordingStart = 6,
+	RecordingStop = 7,
+};
+
 void SetColor(ConsoleColorCOUT);
+
+void coutMessage(MessageType, std::string);
+
+void coutMessage(MessageType);
 
 int intlen(int);
 

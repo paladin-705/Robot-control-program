@@ -1,7 +1,9 @@
 #include <windows.h>
 #include <iostream>	
+#include <string>
 
 #include "Functions.h"
+
 
 void SetColor(ConsoleColorCOUT text)
 {
@@ -9,22 +11,89 @@ void SetColor(ConsoleColorCOUT text)
 	SetConsoleTextAttribute(hStdOut, (WORD)(text));
 }
 
-int intlen(int a)					//Функция определения длинны числа
+void coutMessage(MessageType type)
 {
-	int len = 0;
-
-	if (a < 0)
+	switch (type)
 	{
-		a *= (-1);
-		len++;
-	}
-
-	while (a > 0)
+	case Line:
 	{
-		a /= 10;
-		len++;
+		SetColor(Cyan);
+		std::cout << "----------------------------------" << std::endl;
+		SetColor(LightGray);
+		break;
 	}
-	return len;
+	}
+}
+
+void coutMessage(MessageType type, std::string message)
+{
+	switch (type)
+	{
+	case Error:
+	{
+		SetColor(Red);
+		std::cout << "----------------------------------" << std::endl;
+		SetColor(LightRed);
+		std::cout << "\a" << message << std::endl;
+		SetColor(Red);
+		std::cout << "----------------------------------" << std::endl;
+		SetColor(LightGray);
+		break;
+	}
+	case Success:
+	{
+		SetColor(Green);
+		std::cout << "----------------------------------" << std::endl;
+		SetColor(LightGreen);
+		std::cout << "\a" << message << std::endl;
+		SetColor(Green);
+		std::cout << "----------------------------------" << std::endl;
+		SetColor(LightGray);
+		break;
+	}
+	case Header:
+	{
+		SetColor(White);
+		std::cout << message << std::endl;
+		SetColor(LightGray);
+		break;
+	}
+	case EnterData:
+	{
+		SetColor(White);
+		std::cout << message;
+		SetColor(Yellow);
+		break;
+	}
+	case Line:
+	{
+		SetColor(Cyan);
+		std::cout << "----------------------------------" << std::endl;
+		SetColor(LightGray);
+		break;
+	}
+	case GamepadData:
+	{
+		SetColor(Green);
+		std::cout << message << std::endl;
+		SetColor(White);
+		break;
+	}
+	case RecordingStart:
+	{
+		SetColor(Green);
+		std::cout << message << std::endl;
+		SetColor(LightGray);
+		break;
+	}
+	case RecordingStop:
+	{
+		SetColor(Red);
+		std::cout << message << std::endl;
+		SetColor(LightGray);
+		break;
+	}
+	}
 }
 
 void cls()												//Функция очистки экрана

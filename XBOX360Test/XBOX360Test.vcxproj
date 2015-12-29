@@ -91,10 +91,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CXBOXController.cpp" />
+    <ClCompile Include="Functions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Serial lib\Serial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CXBOXController.h" />
+    <ClInclude Include="Functions.h" />
+    <ClInclude Include="Serial lib\Serial.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="setting.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

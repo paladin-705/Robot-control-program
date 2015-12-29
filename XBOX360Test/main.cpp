@@ -1,245 +1,702 @@
-/*
-Шаблон сообщения:
-S_1_;_2_;_3_n
-_1_ - длина части сообщения с координатами положения джойстика (т.е от _2_ до n включительно)
-_2_ - позиция стика геймпада по оси X
-_3_ - позиция стика геймпада по оси Y
-*/
+// main.cpp: 
+//
+#include "Serial lib\Serial.h"
+#include "CXBOXController.h"
+#include "Functions.h"
 
-
-#include "CXBOXController.h"		//Библиотека работы с геймпадом, с сайта http://www.codeproject.com/Articles/26949/Xbox-Controller-Input-in-C-with-XInput
-#include <iostream>					
+#include <iostream>
 #include <iomanip> 
+#include <Windows.h>
 
-#include <cstdlib>
+#include <fstream>
+#include <string>
+#include <ctime>
+#include <vector>
+#include <iterator>
 
-#include <Windows.h>				//Библиотека для работы с функциями перевода каретки на нужную строку
-#include <process.h>				//Библиотека для работы с несколькими потоками
+#include <thread>
+#include <mutex>
 
-CXBOXController* Player1;			//Обьект для работы с геймпадом
+using namespace std;
 
-//COM порт:
-HANDLE hSerial;						//Обработчик COM порта
-wchar_t buffPortName[7];			//Временная переменная хранения имени COM порта
+mutex g_lock;
 
-bool flgOK = false;					//Флаг нормальной работы потока
-bool flgStop = false;				//Флаг окончания работы потока
+Serial serial;
+CXBOXController* Player;
 
-const int SLEEP_MSEC = 100;			//Задержка между отправками сообщений
+//sendMessageThread const:
+bool flgStop;
 
-int intlen(int a)					//Функция определения длинны числа
+#define RECORDING_DEFAULT 0
+#define RECORDING_START 1
+#define RECORDING_STOP 2
+int flgRecording;
+
+const int MESSAGE_HEADER = 42;
+const int MESSAGE_END = 0;
+
+string replayPatch;
+
+int SLEEP_MSEC = 100;
+//motorsControll func const:
+bool SPEED_MODE = true;
+
+int MAX_TRIG_POS_Y = 500;
+int MIN_TRIG_POS_X = 3000;
+
+int ARDUINO_SPEED_TRIG = 255;
+
+bool BCKWRD = false;
+bool FRWRD = true;
+
+void loadSetting();
+void enterGamepadMode(int *, int *);
+void motorsControll(int, int, unsigned char *, unsigned char *, unsigned char *, unsigned char *);
+void sendMessageThread(int, int);
+void stopSendMessageThread();
+
+int main()
 {
-	int len = 0;
+	SetColor(LightGray);
+	loadSetting();
 
-	if (a < 0)
-	{
-		a *= (-1);
-		len++;
-	}
-
-	while (a > 0)
-	{
-		a /= 10;
-		len++;
-	}
-	return len;
-}
-
-void cls()							//Функция очистки экрана
-{
-	COORD position;                                     // Объявление необходимой структуры
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // Получение дескриптора устройства стандартного вывода
-
-	position.X = 0;										// Установка координаты X
-	position.Y = 2;										// Установка координаты Y
-
-	Sleep(100);											//Останавливаем выполнение программы на 100мс для прекращения дёрганья символов на экране
-
-	SetConsoleCursorPosition(hConsole, position);		//Устанавливаем курсор в нужную позицию
-
-	//Очищаем нужные строчки:
-	std::cout	<< "                                          " << std::endl
-				<< "                                          " << std::endl
-				<< "                                          " << std::endl
-				<< "                                          " << std::endl;	
-
-	SetConsoleCursorPosition(hConsole, position);		//Устанавливаем курсор в нужную позицию
-}
-
-void Thread(void* pParams)			//Поток для передачи данных к Arduino
-{
-	//Переменные для хранения координат:
-	int *iPosLX = new int;
-	int *iPosLY = new int;
-	int *iPosRX = new int;
-	int *iPosRY = new int;
-
-	int lenLX, lenLY, lenRX, lenRY;	//Переменные для хранения длинны числа
-
-	while (true)
-	{
-		if (flgStop) break;			//Если сигнал выхода из потока станет истинным то закрываем поток
-
-		if (flgOK)					//Если инициализация прошла нормально то начинаем деятельность потока
-		{
-			int dataLen = 0;
-
-			*iPosLX = Player1->GetState().Gamepad.sThumbLX;
-			*iPosLY = Player1->GetState().Gamepad.sThumbLY;
-
-			lenLX = intlen(*iPosLX);
-			lenLY = intlen(*iPosLY);
-
-			char *posLX = new char[lenLX+1];
-			char *posLY = new char[lenLY+1];
-
-			itoa(*iPosLX, posLX, 10);
-			itoa(*iPosLY, posLY, 10);
-
-			dataLen = lenLX + lenLY + 3;
-
-			char *len = new char[intlen(dataLen)];
-			itoa(dataLen, len, 10);
-
-			char *data = new char[dataLen + 2 + intlen(dataLen)+1];
-			
-			//Формируем сообщение:
-			strcpy(data, "S");
-			strcat(data, len);
-			strcat(data, ";");
-			
-			strcat(data, posLX);
-			strcat(data, ";");
-			
-			strcat(data, posLY);
-			strcat(data, "n");
-			
-			//Передаём данные:
-			DWORD dwSize = sizeof(char)*(dataLen + 2 + intlen(dataLen) + 1);		 // размер передаваемой строки
-			DWORD dwBytesWritten;													 // тут будет количество собственно переданных байт
-			
-			BOOL iRet = WriteFile(hSerial, data, dwSize, &dwBytesWritten, NULL);
-
-			delete[] data;
-			delete[] posLX;
-			delete[] posLY;
-
-			Sleep(SLEEP_MSEC);
-		}
-	}
-
-	//Удаление переменных для хранения координат:
-	delete iPosLX;
-	delete iPosLY;
-	delete iPosRX;
-	delete iPosRY;
-
-	_endthread();					//Закрываем поток
-}
-
-int main(int argc, char* argv[])
-{
-	int nmbGmpd;					//Переменная для хранения номера геймпада
-
-	/*
-		To Do: добавть try-catch блок вместо if условий проверки введённых данных
-	*/
-
-error:								//Если введённое значение несоответсвует условию то его надо ввести по новой
+	int nmbGmpd;
+	int sMode;
+	int wMode;
+	wchar_t buffPortName[7];
 	
-	std::cout << "Enter number of gamepad(1-4): ";
-	std::cin >> nmbGmpd;
+	coutMessage(Header, "Work mode: ");
+	cout << "0-Control" << endl;
+	cout << "1-Record patch" << endl;
+	cout << "2-Play patch" << endl;
 
-	std::cout << "Enter COM port number(COM_): ";
-	std::wcin >> buffPortName;
+	coutMessage(Line);
+	coutMessage(EnterData, "Enter Work mode: ");
+	cin >> wMode;
+	coutMessage(Line);
 
-	//Работа с COM портом:
-	LPCTSTR sPortName = buffPortName;
+error:
+	flgStop = false;
+	flgRecording = RECORDING_DEFAULT;
 
-	hSerial = ::CreateFile(sPortName, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	
-	if (hSerial == INVALID_HANDLE_VALUE)
+	coutMessage(EnterData, "Enter COM port number(COM_): ");
+	wcin >> buffPortName;
+
+	//---------------------------
+	serial.setCOMname(buffPortName);
+
+	switch (serial.initCOM())
 	{
-		if (GetLastError() == ERROR_FILE_NOT_FOUND)
+	case 0:
+	{
+		coutMessage(Success, "COM port conected");
+		delayAndCls();
+		break;
+	}
+	case 1:
+	{
+		coutMessage(Error, "Serial port does not exist.");
+		delayAndCls();
+
+		return 0;
+		break;
+	}
+	case 2:
+	{
+		coutMessage(Error, "Some other error occurred");
+		delayAndCls();
+
+		return 0;
+		break;
+	}
+	case 3:
+	{
+		coutMessage(Error, "Getting state error");
+		delayAndCls();
+
+		return 0;
+		break;
+	}
+	case 4:
+	{
+		coutMessage(Error, "Error setting serial port state");
+		delayAndCls();
+
+		return 0;
+		break;
+	}
+	}
+	//---------------------------
+
+	switch (wMode)
+	{
+	case 0:
+	{
+		enterGamepadMode(&nmbGmpd, &sMode);
+
+		Player = new CXBOXController(nmbGmpd);
+		//---------------------------
+
+		thread sendMesThr(sendMessageThread, ref(sMode), ref(wMode));	//????????? ????? ??? ???????? ?????? ?? Arduino
+
+		system("cls");
+
+		if (Player->IsConnected())
 		{
-			std::cout << "serial port does not exist.\n";
-		}
-		std::cout << "some other error occurred.\n";
-
-		system("pause");
-		system("cls");
-		goto error;
-	}
-
-	DCB dcbSerialParams = { 0 };
-	dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-	if (!GetCommState(hSerial, &dcbSerialParams))
-	{
-		std::cout << "getting state error\n";
-
-		system("pause");
-		system("cls");
-		goto error;
-	}
-	dcbSerialParams.BaudRate = CBR_9600;
-	dcbSerialParams.ByteSize = 8;
-	dcbSerialParams.StopBits = ONESTOPBIT;
-	dcbSerialParams.Parity = NOPARITY;
-	if (!SetCommState(hSerial, &dcbSerialParams))
-	{
-		std::cout << "error setting serial port state\n";
-
-		system("pause");
-		system("cls");
-		goto error;
-	}
-
-	//----------------------------------------------------------------------
-
-	if (nmbGmpd < 1 || nmbGmpd > 4)
-	{
-		std::cout << "\aincorrect number\n";
-		system("pause");
-		system("cls");
-		goto error;
-	}
-
-	Player1 = new CXBOXController(nmbGmpd);
-
-	_beginthread(Thread, 0, NULL);	//Открываем поток для передачи данных на Arduino
-
-	std::cout << "Instructions:\n";
-	std::cout << "[BACK] Exit\n";
-	
-	while(true)
-	{
-		if(Player1->IsConnected())
-		{
-			flgOK = true;			//Сигнал начала работы второго потока в нормальном режиме
-
-			cls();					//Очищаем экран
-			
-			//Выводим информацию о координатах стиков геймпада:
-			std::cout << "Left stick:\n";
-			std::cout << "X pos: " << std::setw(6) << Player1->GetState().Gamepad.sThumbLX << " " << "Y pos: " << std::setw(6) << Player1->GetState().Gamepad.sThumbLY << std::endl;
-			std::cout << "Right stick:\n";
-			std::cout << "X pos: " << std::setw(6) << Player1->GetState().Gamepad.sThumbRX << " " << "Y pos: " << std::setw(6) << Player1->GetState().Gamepad.sThumbRY << std::endl;
-			
-			if(Player1->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
+			while (true)
 			{
-				flgStop = true;		//Закрываем второй поток
-				break;
+				if (Player->IsConnected())
+				{
+					cls();
+
+					cout << "Work mode: " << wMode << "   " << "Serial port: ";
+					wcout << buffPortName << endl;
+
+					coutMessage(GamepadData, "Left stick:");
+					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbLX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbLY << endl;
+					coutMessage(GamepadData, "Right stick:");
+					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbRX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbRY << endl;
+					SetColor(LightGray);
+
+					if (Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
+					{
+						stopSendMessageThread();
+						system("pause");
+						break;
+					}
+				}
+				else
+				{
+					coutMessage(Error, "ERROR! XBOX 360 Controller Not Found!");
+
+					stopSendMessageThread();
+
+					system("pause");
+					break;
+				}
 			}
 		}
 		else
 		{
-			std::cout << "\t\aERROR! PLAYER " << nmbGmpd << " - XBOX 360 Controller Not Found!\n";
-			std::cout << "Press Any Key To Exit.\n";
-			flgStop = true;			//Закрываем второй поток
-			system("pause");
-			break;
+			coutMessage(Error, "ERROR! XBOX 360 Controller Not Found!");
+
+			stopSendMessageThread();
+
+			delete(Player);
+			serial.close();
+
+			delayAndCls();
+		}
+
+		delete(Player);
+		sendMesThr.detach();
+		break;
+	}
+	case 1:
+	{
+		enterGamepadMode(&nmbGmpd, &sMode);
+
+		Player = new CXBOXController(nmbGmpd);
+		//---------------------------
+		thread sendMesThr(sendMessageThread, sMode, wMode);
+	
+		system("cls");
+
+		if (Player->IsConnected())
+		{
+			int recordingState = 0;
+
+			while (true)
+			{
+				if (Player->IsConnected())
+				{
+					cls();
+					cout << "Work mode: " << wMode << "   " << "Serial port: ";
+					wcout << buffPortName << endl;
+
+					if ((Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) && (recordingState == 0))
+					{
+						g_lock.lock();
+						flgRecording = RECORDING_START;
+						recordingState = 1;
+						g_lock.unlock();
+					}
+
+					if ((Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) && (recordingState == 1))
+					{
+						g_lock.lock();
+						flgRecording = RECORDING_STOP;
+						recordingState = 2;
+						g_lock.unlock();
+					}
+					
+					if (recordingState == 1)
+					{
+						coutMessage(RecordingStart, "Recording enable");
+					}
+					if (recordingState == 2)
+					{
+						coutMessage(RecordingStop, "Recording disable");
+					}
+
+					coutMessage(GamepadData, "Left stick:");
+					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbLX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbLY << endl;
+					coutMessage(GamepadData, "Right stick:");
+					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbRX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbRY << endl;
+					SetColor(LightGray);
+
+					if (Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
+					{
+						stopSendMessageThread();
+						system("pause");
+						break;
+					}
+				}
+				else
+				{
+					coutMessage(Error, "ERROR! XBOX 360 Controller Not Found!");
+
+					stopSendMessageThread();
+
+					system("pause");
+					break;
+				}
+			}
+		}
+		else
+		{
+			coutMessage(Error, "ERROR! XBOX 360 Controller Not Found!");
+
+			stopSendMessageThread();
+
+			delete(Player);
+			serial.close();
+
+			delayAndCls();
+		}
+
+		delete(Player);
+		sendMesThr.detach();
+		break;
+	}
+	case 2:
+	{
+		coutMessage(EnterData, "Enter file patch: ");
+		cin >> replayPatch;
+		SetColor(LightGray);
+		system("cls");
+
+		thread sendMesThr(sendMessageThread, sMode, wMode);
+		sendMesThr.join();
+		delayAndCls();
+		break;
+	}
+	}
+
+	stopSendMessageThread();
+	serial.close();
+
+	return 0;
+}
+
+void loadSetting()
+{
+	ifstream setting("setting.ini");
+	string varName;
+	int value;
+
+	while (!setting.eof())
+	{
+		setting >> varName;
+		setting >> value;
+
+		if (varName == "SLEEP_MSEC:") SLEEP_MSEC = value;
+		if (varName == "MAX_TRIG_POS_Y:") MAX_TRIG_POS_Y = value;
+		if (varName == "MIN_TRIG_POS_X:") MIN_TRIG_POS_X = value;
+		if (varName == "ARDUINO_SPEED_TRIG:") {
+			if (value >= 0 || value <= 255) ARDUINO_SPEED_TRIG = value;
+			else if (value > 255) ARDUINO_SPEED_TRIG = 255;
+			else if (value < 0) ARDUINO_SPEED_TRIG = 0;
+		}
+		if (varName == "BCKWRD:") BCKWRD = value;
+		if (varName == "FRWRD:") FRWRD = value;
+		if (varName == "SPEED_MODE:") SPEED_MODE = value;
+	}
+	setting.close();
+}
+
+void motorsControll(int buffPosX, int buffPosY, unsigned char *directionL, unsigned char *directionR, unsigned char *speedLeft, unsigned char *speedRight)
+{
+
+	float MAXPOS = 32640;
+
+	float posX = fabs(buffPosX / MAXPOS);
+	float posY = fabs(buffPosY / MAXPOS);
+
+	if (fabs(buffPosX) < 129)posX = 0;
+	if (fabs(buffPosY) < 129)posY = 0;
+
+
+	float coefSpeedDif;
+
+	if (buffPosX<0) {
+		if (SPEED_MODE)
+		{
+			*speedRight = 255 * sqrt(2 * posY - pow(posY, 2));
+			coefSpeedDif = sqrt(1 - pow(posX, 2));
+			*speedLeft = *speedRight *coefSpeedDif;
+		}
+		else
+		{
+			*speedRight = 255 * posY;
+			coefSpeedDif = sqrt(1 - pow(posX, 2));
+			*speedLeft = *speedRight *coefSpeedDif;
 		}
 	}
-	delete(Player1);				//Удаляем обьект Player1
-	return( 0 );
+	else {
+		if (SPEED_MODE)
+		{
+			*speedLeft = 255 * sqrt(2 * posY - pow(posY, 2));
+			coefSpeedDif = sqrt(1 - pow(posX, 2));
+			*speedRight = *speedLeft*coefSpeedDif;
+		}
+		else
+		{
+			*speedLeft = 255 * posY;
+			coefSpeedDif = sqrt(1 - pow(posX, 2));
+			*speedRight = *speedLeft*coefSpeedDif;
+		}
+	}
+
+	//Trigger 
+	if ((fabs(buffPosY) <= MAX_TRIG_POS_Y) && (fabs(buffPosX) >= MIN_TRIG_POS_X)) {
+		if (buffPosX<0) {
+			*directionL = BCKWRD;
+			*directionR = FRWRD;
+			*speedLeft = ARDUINO_SPEED_TRIG;
+			*speedRight = ARDUINO_SPEED_TRIG;
+		}
+		else {
+			*directionL = FRWRD;
+			*directionR = BCKWRD;
+			*speedLeft = ARDUINO_SPEED_TRIG;
+			*speedRight = ARDUINO_SPEED_TRIG;
+		}
+	}
+	else {
+		if (buffPosY<0) {
+			*directionL = BCKWRD;
+			*directionR = BCKWRD;
+		}
+		else if (buffPosY>0) {
+			*directionL = FRWRD;
+			*directionR = FRWRD;
+		}
+	}
+}
+
+void sendMessageThread(int stickMode, int workMode)
+{
+	int posX;
+	int posY;
+
+	unsigned char message[6];
+	/*
+	0 - header
+	1 - left motor direction
+	2 - right motor direction
+	3 - left motor speed
+	4 - right motor speed
+	5 - end
+	*/
+	message[0] = MESSAGE_HEADER;
+	message[5] = MESSAGE_END;
+
+	switch (workMode)
+	{
+	case 0:
+	{
+		do
+		{
+			g_lock.lock();
+
+			switch (stickMode)
+			{
+			case 0:
+			{
+				posX = Player->GetState().Gamepad.sThumbLX;
+				posY = Player->GetState().Gamepad.sThumbLY;
+				break;
+			}
+			case 1:
+			{
+				posX = Player->GetState().Gamepad.sThumbRX;
+				posY = Player->GetState().Gamepad.sThumbLY;
+				break;
+			}
+			case 2:
+			{
+				posX = Player->GetState().Gamepad.sThumbLX;
+				posY = Player->GetState().Gamepad.sThumbRY;
+				break;
+			}
+			case 3:
+			{
+				posX = Player->GetState().Gamepad.sThumbRX;
+				posY = Player->GetState().Gamepad.sThumbRY;
+				break;
+			}
+			default:
+			{
+				posX = Player->GetState().Gamepad.sThumbLX;
+				posY = Player->GetState().Gamepad.sThumbLY;
+				break;
+			}
+			}
+
+			motorsControll(posX, posY, &message[1], &message[2], &message[3], &message[4]);
+
+			serial.cSend(message, 6);
+
+			g_lock.unlock();
+
+			Sleep(SLEEP_MSEC);
+		} while (!flgStop);
+		break;
+	}
+	case 1:
+	{
+		vector<int> lMotorSpeed;
+		vector<int> rMotorSpeed;
+
+		vector<bool> lMotorDir;
+		vector<bool> rMotorDir;
+
+		char buff[50];
+
+		time_t rawtime;
+		struct tm timeinfo;
+		time(&rawtime);
+		localtime_s(&timeinfo, &rawtime);
+
+		strftime(buff, 50, "-%B-%A-%H-%M", &timeinfo);
+		string filePatch = "recordinPatch";
+		filePatch += buff;
+		filePatch += ".txt";
+		cout << filePatch << endl;
+		ofstream recordinPatch(filePatch);
+
+		recordinPatch << SLEEP_MSEC << endl;
+
+		do
+		{
+			g_lock.lock();
+
+			switch (stickMode)
+			{
+			case 0:
+			{
+				posX = Player->GetState().Gamepad.sThumbLX;
+				posY = Player->GetState().Gamepad.sThumbLY;
+				break;
+			}
+			case 1:
+			{
+				posX = Player->GetState().Gamepad.sThumbRX;
+				posY = Player->GetState().Gamepad.sThumbLY;
+				break;
+			}
+			case 2:
+			{
+				posX = Player->GetState().Gamepad.sThumbLX;
+				posY = Player->GetState().Gamepad.sThumbRY;
+				break;
+			}
+			case 3:
+			{
+				posX = Player->GetState().Gamepad.sThumbRX;
+				posY = Player->GetState().Gamepad.sThumbRY;
+				break;
+			}
+			default:
+			{
+				posX = Player->GetState().Gamepad.sThumbLX;
+				posY = Player->GetState().Gamepad.sThumbLY;
+				break;
+			}
+			}
+
+			if (flgRecording == RECORDING_STOP)
+			{
+				recordinPatch << lMotorDir.size() << endl;
+
+				for (int i = 0;i < lMotorDir.size();i++)
+				{
+					recordinPatch << lMotorDir[i] << " ";
+					recordinPatch << rMotorDir[i] << " ";
+					recordinPatch << lMotorSpeed[i] << " ";
+					recordinPatch << rMotorSpeed[i] << endl;
+				}
+				flgRecording == RECORDING_DEFAULT;
+				recordinPatch.close();
+			}
+			g_lock.unlock();
+
+			motorsControll(posX, posY, &message[1], &message[2], &message[3], &message[4]);
+
+			serial.cSend(message, 6);
+
+			if (flgRecording == RECORDING_START)
+			{
+				lMotorDir.insert(lMotorDir.end(), message[1]);
+				rMotorDir.insert(rMotorDir.end(), message[2]);
+				lMotorSpeed.insert(lMotorSpeed.end(), message[3]);
+				rMotorSpeed.insert(rMotorSpeed.end(), message[4]);
+			}
+
+			Sleep(SLEEP_MSEC);
+		} while (!flgStop);
+
+		break;
+	}
+	case 2:
+	{
+		vector<int> lMotorSpeed;
+		vector<int> rMotorSpeed;
+
+		vector<bool> lMotorDir;
+		vector<bool> rMotorDir;
+
+		int size;
+		ifstream replay(replayPatch);
+
+		replay >> SLEEP_MSEC;
+		replay >> size;
+
+		for (int i = 0;i < size;i++)
+		{
+			int buff;
+			replay >> buff;
+			lMotorDir.insert(lMotorDir.end(), buff);
+
+			replay >> buff;
+			rMotorDir.insert(rMotorDir.end(), buff);
+
+			replay >> buff;
+			lMotorSpeed.insert(lMotorSpeed.end(), buff);
+
+			replay >> buff;
+			rMotorSpeed.insert(rMotorSpeed.end(), buff);
+		}
+		replay.close();
+
+		for (int i = 0;i < size;i++)
+		{
+			cls();
+
+			SetColor(White);
+			cout << "Work mode: " << workMode << endl;
+			SetColor(LightGray);
+
+			message[1] = lMotorDir[i];
+			message[2] = rMotorDir[i];
+			message[3] = lMotorSpeed[i];
+			message[4] = rMotorSpeed[i];
+			serial.cSend(message, 6);
+
+			coutMessage(Line);
+
+			SetColor(Green);
+			cout << setw(3) << left << (int)(message[1]);
+			SetColor(LightGray);
+			cout << " - "; 
+			SetColor(Green);
+			cout << setw(3) << left << (int)(message[2]);
+			SetColor(LightGray);
+			cout << " - ";
+			SetColor(Green);
+			cout << setw(3) << left << (int)(message[3]);
+			SetColor(LightGray);
+			cout << " - ";
+			SetColor(Green);
+			cout << setw(3) << left << (int)(message[4]) << endl;
+
+			coutMessage(Line);
+
+			//-------------------------------------
+			int x = (i * 20) / (size);
+
+			char indicator[21];
+
+			for (int a = 0;a < 20;a++)
+			{
+				if (a < x)
+					indicator[a] = '=';
+				else if (a == x)
+					indicator[a] = '>';
+				else
+					indicator[a] = ' ';
+
+			}
+			indicator[20] = '\0';
+
+			SetColor(White);
+			cout << "\r" << "Loading: "; 
+			SetColor(Green);
+			cout << indicator;
+			SetColor(White);
+			cout << "| " << setw(3) << left << (int)((float)(i) / (size - 1) * 100) << "%";
+			SetColor(LightGray);
+			//-------------------------------------
+
+			Sleep(SLEEP_MSEC);
+		}
+		cout << endl;
+		
+		coutMessage(Line);
+
+		break;
+	}
+	}
+}
+
+void enterGamepadMode(int *nmbGmpd, int *sMode)
+{
+	bool flg;
+	do {
+		coutMessage(EnterData, "Enter number of gamepad(1-4): ");
+		std::cin >> *nmbGmpd;
+
+		if (*nmbGmpd < 1 || *nmbGmpd > 4)
+		{
+			coutMessage(Error, "incorrect number");
+			delayAndCls();
+			flg = true;
+		}
+		else flg = false;
+
+	} while (flg);
+
+	coutMessage(Line);
+
+	coutMessage(Header, "Control mode: ");
+
+	std::cout << "0-Left stick" << std::endl;
+	std::cout << "1-Left(Y axis) and Right(X axis) stick)" << std::endl;
+	std::cout << "2-Left(X axis) and Right(Y axis) stick)" << std::endl;
+	std::cout << "3-Right stick" << std::endl;
+	
+	coutMessage(Line);
+	
+	coutMessage(EnterData, "Enter Stick mode: ");
+	std::cin >> *sMode;
+
+	SetColor(LightGray);
+}
+
+void stopSendMessageThread()
+{
+	g_lock.lock();
+	flgStop = true;
+	g_lock.unlock();
 }

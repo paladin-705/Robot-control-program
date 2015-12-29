@@ -1,0 +1,13 @@
+﻿################################################################################
+# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
+################################################################################
+
+/Debug
+/XBOX360Test/Debug/Gamepad-.7BCC5991.tlog
+/XBOX360Test/Debug
+/Gamepad-controller-for-arduino.opensdf
+/Release
+/XBOX360Test/Release/Gamepad-.7BCC5991.tlog
+*.obj
+*.log
+*.pdb

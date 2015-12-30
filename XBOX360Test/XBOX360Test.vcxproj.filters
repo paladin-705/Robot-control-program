@@ -38,6 +38,9 @@
     <ClInclude Include="Serial lib\Serial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="setting.ini" />

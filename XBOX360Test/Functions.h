@@ -38,8 +38,6 @@ void coutMessage(MessageType, std::string);
 
 void coutMessage(MessageType);
 
-int intlen(int);
-
 void cls();
 
 void delayAndCls();

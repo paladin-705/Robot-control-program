@@ -96,6 +96,7 @@
     <ClCompile Include="Serial lib\Serial.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="CXBOXController.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="Serial lib\Serial.h" />

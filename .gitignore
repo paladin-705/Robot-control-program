@@ -11,3 +11,4 @@
 *.obj
 *.log
 *.pdb
+/XBOX360Test/ev3sources/lms2012/c_com/Linuxlib_AM1808/Makefile

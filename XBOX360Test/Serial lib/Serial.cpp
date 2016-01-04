@@ -1,5 +1,4 @@
 #include "Serial.h"
-#include <iostream>
 
 Serial::Serial()
 {
@@ -154,6 +153,25 @@ int Serial::cSend(unsigned char *data)
 }
 
 int Serial::cSend(unsigned char *data, int len)
+{
+	DWORD dwSize = len;
+	DWORD dwBytesWritten;
+
+	BOOL iRet = WriteFile(serialPort, data, dwSize, &dwBytesWritten, NULL);
+
+	return dwBytesWritten;
+}
+int Serial::cSend(char *data)
+{
+	DWORD dwSize = sizeof(*data);
+	DWORD dwBytesWritten;
+
+	BOOL iRet = WriteFile(serialPort, data, dwSize, &dwBytesWritten, NULL);
+
+	return dwBytesWritten;
+}
+
+int Serial::cSend(char *data, int len)
 {
 	DWORD dwSize = len;
 	DWORD dwBytesWritten;

@@ -2,6 +2,7 @@
 
 #include <Windows.h>
 #include <fstream>
+#include <iostream>
 
 class Serial
 {
@@ -22,7 +23,8 @@ public:
 	void fReadCOM(std::ofstream *);
 	int cSend(unsigned char *);
 	int cSend(unsigned char *, int);
-
+	int cSend(char *);
+	int cSend(char *, int);
 private:
 
 	//Variables and constants:

@@ -91,17 +91,26 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CXBOXController.cpp" />
-    <ClCompile Include="Functions.cpp" />
+    <ClCompile Include="GlobalVarSettings.cpp" />
+    <ClCompile Include="InputFunctions.cpp" />
+    <ClCompile Include="legoMotors.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="SendMessageThread.cpp" />
     <ClCompile Include="Serial lib\Serial.cpp" />
+    <ClCompile Include="SettingFunc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h" />
     <ClInclude Include="CXBOXController.h" />
-    <ClInclude Include="Functions.h" />
+    <ClInclude Include="InputFunctions.h" />
+    <ClInclude Include="GlobalVarSettings.h" />
+    <ClInclude Include="legoMotors.h" />
+    <ClInclude Include="SendMessageThread.h" />
     <ClInclude Include="Serial lib\Serial.h" />
+    <ClInclude Include="SettingFunc.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="legoMotorsSetting.ini" />
     <None Include="setting.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

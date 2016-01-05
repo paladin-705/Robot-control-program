@@ -14,3 +14,5 @@ extern int MAX_ANGLE;
 
 extern bool BCKWRD;
 extern bool FRWRD;
+
+extern bool OPTIMIZE_PATCH;

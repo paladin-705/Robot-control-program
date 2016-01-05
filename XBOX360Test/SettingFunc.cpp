@@ -20,12 +20,150 @@ void changeSetting()
 	{
 	case 2:
 	{
+		string standardName[4] = {
+			"MOTOR_A:",
+			"MOTOR_B:",
+			"MOTOR_C:",
+			"MOTOR_D:"
+		};
+
+		string standardRole[3] = {
+			"L",
+			"R",
+			"A"
+		};
+
+		struct LegoMotor
+		{
+			string name;
+			bool state;
+			bool inversion;
+			string role;
+		}legoMotors[4], buffLegoMotor;
+
+		auto loadLegoSettingFunc = [](LegoMotor *legoMotors)
+		{
+			ifstream settingFileL("legoMotorsSetting.ini");
+			for (int i = 0;i < 4;i++)
+			{
+				settingFileL >> legoMotors[i].name;
+				settingFileL >> legoMotors[i].state;
+				settingFileL >> legoMotors[i].inversion;
+				settingFileL >> legoMotors[i].role;
+			}
+			settingFileL.close();
+		};
+
+		loadLegoSettingFunc(legoMotors);
+
+		for (int i = 0;i < 4;i++)
+		{
+			bool flg = false;
+			for (int a = 0;a < 4;a++)
+			{
+				if (legoMotors[i].name == standardName[a])
+					flg = true;
+			}
+			if (!flg)
+			{
+				coutMessage(Error, "Incorrect settings");
+				coutMessage(EnterData, "Change to default (y/n)? ");
+				string buff;
+				cin >> buff;
+
+				if (buff == "y" || buff == "Y")
+				{
+					ofstream settingFileS("legoMotorsSetting.ini");
+					settingFileS << "MOTOR_A: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS << "MOTOR_B: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS << "MOTOR_C: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS << "MOTOR_D: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS.close();
+
+					system("cls");
+					coutMessage(Success, "Settings changed to to default");
+					system("pause");
+
+					loadLegoSettingFunc(legoMotors);
+				}
+				system("cls");
+				break;
+			}
+		}
+
+		for (int i = 0;i < 4;i++)
+		{
+			bool flg = false;
+			for (int a = 0;a < 3;a++)
+			{
+				if (legoMotors[i].role == standardRole[a])
+					flg = true;
+			}
+			if (!flg)
+			{
+				coutMessage(Error, "Incorrect settings");
+				coutMessage(EnterData, "Change to default (y/n)? ");
+				string buff;
+				cin >> buff;
+
+				if (buff == "y" || buff == "Y")
+				{
+					ofstream settingFileS("legoMotorsSetting.ini");
+					settingFileS << "MOTOR_A: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS << "MOTOR_B: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS << "MOTOR_C: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS << "MOTOR_D: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS.close();
+
+					system("cls");
+					coutMessage(Success, "Settings changed to to default");
+					system("pause");
+
+					loadLegoSettingFunc(legoMotors);
+				}
+				system("cls");
+				break;
+			}
+		}
+
+		while (true)
+		{
+			SetColor(LightGray);
+			cout << "Enter END if you want exit" << endl;
+			SetColor(Yellow);
+
+			ofstream settingFileS("legoMotorsSetting.ini");
+			for (int i = 0;i < 4;i++)
+			{
+				cout << legoMotors[i].name << " " << legoMotors[i].state << " " << legoMotors[i].inversion << " " << legoMotors[i].role << '\n';
+				settingFileS << legoMotors[i].name << " " << legoMotors[i].state << " " << legoMotors[i].inversion << " " << legoMotors[i].role << '\n';
+			}
+			settingFileS.close();
+
+			coutMessage(EnterData, "Enter new setting: ");
+			cin >> buffLegoMotor.name;
+			if (buffLegoMotor.name == "END") break;
+			cin >> buffLegoMotor.state;
+			cin >> buffLegoMotor.inversion;
+			cin >> buffLegoMotor.role;
+
+			for (int i = 0;i < 4;i++)
+			{
+				if (buffLegoMotor.name == legoMotors[i].name)
+				{
+					legoMotors[i] = buffLegoMotor;
+					break;
+				}
+			}
+			
+			system("cls");
+		}
 
 		break;
 	}
 	case 1:
 	{
-		string settingName[12] = {
+		string settingName[13] = {
 			"SLEEP_MSEC:",
 			"SPEED_MODE:",
 			"MAX_SPEED_ARDUINO:",
@@ -37,7 +175,8 @@ void changeSetting()
 			"MIN_TRIG_POS_X:",
 			"MAX_ANGLE:",
 			"BCKWRD:",
-			"FRWRD:"
+			"FRWRD:",
+			"OPTIMIZE_PATCH:"
 		};
 
 		map <string, int> Setting;
@@ -91,7 +230,7 @@ void changeSetting()
 			{
 				bool flg = false;
 
-				for (int i = 0;i < 12;i++)
+				for (int i = 0;i < 13;i++)
 				{
 					if (buffName == settingName[i])
 					{
@@ -127,7 +266,10 @@ void changeSetting()
 		settingFileS << "BCKWRD:" << " " << DEFAULT_BCKWRD << endl;
 		settingFileS << "FRWRD:" << " " << DEFAULT_FRWRD << endl;
 
+		settingFileS << "OPTIMIZE_PATCH:" << " " << DEFAULT_OPTIMIZE_PATCH << endl;
+
 		settingFileS.close();
+
 		coutMessage(Success, "All settings changed to default");
 		system("pause");
 		break;
@@ -152,6 +294,8 @@ void defaultSetting()
 
 	BCKWRD = DEFAULT_BCKWRD;
 	FRWRD = DEFAULT_FRWRD;
+
+	OPTIMIZE_PATCH = DEFAULT_OPTIMIZE_PATCH;
 }
 void loadLegoSetting(LegoMotors *legoMotors, int length)
 {
@@ -165,10 +309,10 @@ void loadLegoSetting(LegoMotors *legoMotors, int length)
 	for (int i = 0;i < length;i++)
 	{
 		setting >> motorNumb;
-		if (motorNumb == "MOTOR_A")	legoMotors->setMotorNumb(MotorA);
-		if (motorNumb == "MOTOR_B")	legoMotors->setMotorNumb(MotorB);
-		if (motorNumb == "MOTOR_C")	legoMotors->setMotorNumb(MotorC);
-		if (motorNumb == "MOTOR_D")	legoMotors->setMotorNumb(MotorD);
+		if (motorNumb == "MOTOR_A:")	legoMotors->setMotorNumb(MotorA);
+		if (motorNumb == "MOTOR_B:")	legoMotors->setMotorNumb(MotorB);
+		if (motorNumb == "MOTOR_C:")	legoMotors->setMotorNumb(MotorC);
+		if (motorNumb == "MOTOR_D:")	legoMotors->setMotorNumb(MotorD);
 
 		setting >> motorState;
 		legoMotors->setMotorState(motorState);
@@ -234,6 +378,7 @@ void loadSetting()
 		if (varName == "BCKWRD:") BCKWRD = value;
 		if (varName == "FRWRD:") FRWRD = value;
 
+		if (varName == "OPTIMIZE_PATCH:") OPTIMIZE_PATCH = value;
 	}
 	setting.close();
 }

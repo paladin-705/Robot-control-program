@@ -232,6 +232,43 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 	int posX;
 	int posY;
 
+	auto getPosFunc = [](int stickMode, int *posX, int *posY, CXBOXController *Player)
+	{
+		switch (stickMode)
+		{
+		case 0:
+		{
+			*posX = Player->GetState().Gamepad.sThumbLX;
+			*posY = Player->GetState().Gamepad.sThumbLY;
+			break;
+		}
+		case 1:
+		{
+			*posX = Player->GetState().Gamepad.sThumbRX;
+			*posY = Player->GetState().Gamepad.sThumbLY;
+			break;
+		}
+		case 2:
+		{
+			*posX = Player->GetState().Gamepad.sThumbLX;
+			*posY = Player->GetState().Gamepad.sThumbRY;
+			break;
+		}
+		case 3:
+		{
+			*posX = Player->GetState().Gamepad.sThumbRX;
+			*posY = Player->GetState().Gamepad.sThumbRY;
+			break;
+		}
+		default:
+		{
+			*posX = Player->GetState().Gamepad.sThumbLX;
+			*posY = Player->GetState().Gamepad.sThumbLY;
+			break;
+		}
+		}
+	};
+
 	if (programMode == ARDUINO_MODE)
 	{
 		int MESSAGE_HEADER;
@@ -281,40 +318,8 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 			do
 			{
 				g_lock.lock();
-
-				switch (stickMode)
-				{
-				case 0:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				case 1:
-				{
-					posX = Player->GetState().Gamepad.sThumbRX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				case 2:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbRY;
-					break;
-				}
-				case 3:
-				{
-					posX = Player->GetState().Gamepad.sThumbRX;
-					posY = Player->GetState().Gamepad.sThumbRY;
-					break;
-				}
-				default:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				}
+				
+				getPosFunc(stickMode, &posX, &posY, Player);
 
 				motorsControllArduino(posX, posY, &message[1], &message[2], &message[3], &message[4]);
 
@@ -354,39 +359,7 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 			{
 				g_lock.lock();
 
-				switch (stickMode)
-				{
-				case 0:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				case 1:
-				{
-					posX = Player->GetState().Gamepad.sThumbRX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				case 2:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbRY;
-					break;
-				}
-				case 3:
-				{
-					posX = Player->GetState().Gamepad.sThumbRX;
-					posY = Player->GetState().Gamepad.sThumbRY;
-					break;
-				}
-				default:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				}
+				getPosFunc(stickMode, &posX, &posY, Player);
 
 				if (flgRecording == RECORDING_STOP)
 				{
@@ -422,8 +395,8 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 		}
 		case 2:
 		{
-			unsigned long long int time = 0;
-			unsigned long long int prev_time = 0;
+			clock_t time = 0;
+			clock_t prev_time = 0;
 
 			vector<int>recPosX;
 			vector<int>recPosY;
@@ -467,6 +440,8 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 
 			for (int i = 0;i < size;i++)
 			{
+				if ((abs(recPosX[i]) < 129) && (abs(recPosY[i]) < 129) && OPTIMIZE_PATCH) continue;
+
 				cls();
 
 				SetColor(White);
@@ -551,39 +526,7 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 			{
 				g_lock.lock();
 
-				switch (stickMode)
-				{
-				case 0:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				case 1:
-				{
-					posX = Player->GetState().Gamepad.sThumbRX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				case 2:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbRY;
-					break;
-				}
-				case 3:
-				{
-					posX = Player->GetState().Gamepad.sThumbRX;
-					posY = Player->GetState().Gamepad.sThumbRY;
-					break;
-				}
-				default:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				}
+				getPosFunc(stickMode, &posX, &posY, Player);
 
 				motorsControllLego(legoMotors, LEGO_MASS_LEN, posX, posY);
 
@@ -642,39 +585,7 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 			{
 				g_lock.lock();
 
-				switch (stickMode)
-				{
-				case 0:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				case 1:
-				{
-					posX = Player->GetState().Gamepad.sThumbRX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				case 2:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbRY;
-					break;
-				}
-				case 3:
-				{
-					posX = Player->GetState().Gamepad.sThumbRX;
-					posY = Player->GetState().Gamepad.sThumbRY;
-					break;
-				}
-				default:
-				{
-					posX = Player->GetState().Gamepad.sThumbLX;
-					posY = Player->GetState().Gamepad.sThumbLY;
-					break;
-				}
-				}
+				getPosFunc(stickMode, &posX, &posY, Player);
 
 				if (flgRecording == RECORDING_STOP)
 				{
@@ -735,8 +646,8 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 		}
 		case 2:
 		{
-			unsigned long long int time = 0;
-			unsigned long long int prev_time = 0;
+			clock_t time = 0;
+			clock_t prev_time = 0;
 
 			vector<int>recPosX;
 			vector<int>recPosY;
@@ -781,7 +692,7 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 
 			for (int i = 0;i < size;i++)
 			{
-				time = clock();
+				if ((abs(recPosX[i]) < 129) && (abs(recPosY[i]) < 129) && OPTIMIZE_PATCH) continue;
 
 				cls();
 

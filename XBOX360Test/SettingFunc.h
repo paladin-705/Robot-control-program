@@ -32,6 +32,8 @@ const int DEFAULT_MAX_ANGLE = 90;
 const int DEFAULT_BCKWRD = false;
 const int DEFAULT_FRWRD = true;
 
+const bool DEFAULT_OPTIMIZE_PATCH = false;
+
 //Setting:
 void changeSetting();
 void defaultSetting();

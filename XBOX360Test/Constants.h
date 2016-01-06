@@ -15,3 +15,4 @@
 #define LEGO_MODE						 0
 #define ARDUINO_MODE					 1	
 
+#define INPUT_DELAY_MS					 300

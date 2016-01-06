@@ -89,11 +89,24 @@ error:
 	flgStop = false;
 	flgRecording = RECORDING_DEFAULT;
 
+reconnectToComPort:
 	coutMessage(EnterData, "Enter COM port number(COM_): ");
 	wcin >> buffPortName;
 
 	//---------------------------
 	serial.setCOMname(buffPortName);
+
+	auto reconectedComPortFunc = []()->bool {
+		string buff;
+		coutMessage(EnterData, "Try to connect again?(y/n): ");
+		cin >> buff;
+
+		system("cls");
+		SetColor(LightGray);
+
+		if (buff == "y" || buff == "Y")return true;
+		else return false;
+	};
 
 	switch (serial.initCOM())
 	{
@@ -106,6 +119,7 @@ error:
 	case 1:
 	{
 		coutMessage(Error, "Serial port does not exist.");
+		if (reconectedComPortFunc())goto reconnectToComPort;
 		delayAndCls();
 
 		return 0;
@@ -114,6 +128,7 @@ error:
 	case 2:
 	{
 		coutMessage(Error, "Some other error occurred");
+		if (reconectedComPortFunc())goto reconnectToComPort;
 		delayAndCls();
 
 		return 0;
@@ -122,6 +137,7 @@ error:
 	case 3:
 	{
 		coutMessage(Error, "Getting state error");
+		if (reconectedComPortFunc())goto reconnectToComPort;
 		delayAndCls();
 
 		return 0;
@@ -130,6 +146,7 @@ error:
 	case 4:
 	{
 		coutMessage(Error, "Error setting serial port state");
+		if (reconectedComPortFunc())goto reconnectToComPort;
 		delayAndCls();
 
 		return 0;
@@ -137,6 +154,9 @@ error:
 	}
 	}
 	//---------------------------
+
+	clock_t time = 0;
+	clock_t prev_time = 0;
 
 	switch (wMode)
 	{
@@ -157,22 +177,29 @@ error:
 			{
 				if (Player->IsConnected())
 				{
-					cls();
+					time = clock();
 
-					cout << "Work mode: " << wMode << "   " << "Serial port: ";
-					wcout << buffPortName << endl;
-
-					coutMessage(GamepadData, "Left stick:");
-					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbLX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbLY << endl;
-					coutMessage(GamepadData, "Right stick:");
-					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbRX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbRY << endl;
-					SetColor(LightGray);
-
-					if (Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
+					if ((time - prev_time) >= INPUT_DELAY_MS)
 					{
-						stopSendMessageThread();
-						system("pause");
-						break;
+						prev_time = time;
+
+						cls();
+
+						cout << "Work mode: " << wMode << "   " << "Serial port: ";
+						wcout << buffPortName << endl;
+
+						coutMessage(GamepadData, "Left stick:");
+						cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbLX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbLY << endl;
+						coutMessage(GamepadData, "Right stick:");
+						cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbRX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbRY << endl;
+						SetColor(LightGray);
+
+						if (Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
+						{
+							stopSendMessageThread();
+							system("pause");
+							break;
+						}
 					}
 				}
 				else
@@ -220,9 +247,32 @@ error:
 			{
 				if (Player->IsConnected())
 				{
-					cls();
-					cout << "Work mode: " << wMode << "   " << "Serial port: ";
-					wcout << buffPortName << endl;
+					time = clock();
+
+					if ((time - prev_time) >= INPUT_DELAY_MS)
+					{
+						prev_time = time;
+
+						cls();
+						cout << "Work mode: " << wMode << "   " << "Serial port: ";
+						wcout << buffPortName << endl;
+
+						if (recordingState == 1)
+						{
+							coutMessage(RecordingStart, "Recording enable");
+						}
+						if (recordingState == 2)
+						{
+							coutMessage(RecordingStop, "Recording disable");
+						}
+
+						coutMessage(GamepadData, "Left stick:");
+						cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbLX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbLY << endl;
+						coutMessage(GamepadData, "Right stick:");
+						cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbRX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbRY << endl;
+						SetColor(LightGray);
+
+					}
 
 					if ((Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) && (recordingState == 0))
 					{
@@ -239,21 +289,6 @@ error:
 						recordingState = 2;
 						g_lock.unlock();
 					}
-					
-					if (recordingState == 1)
-					{
-						coutMessage(RecordingStart, "Recording enable");
-					}
-					if (recordingState == 2)
-					{
-						coutMessage(RecordingStop, "Recording disable");
-					}
-
-					coutMessage(GamepadData, "Left stick:");
-					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbLX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbLY << endl;
-					coutMessage(GamepadData, "Right stick:");
-					cout << "X pos: " << setw(6) << Player->GetState().Gamepad.sThumbRX << " " << "Y pos: " << setw(6) << Player->GetState().Gamepad.sThumbRY << endl;
-					SetColor(LightGray);
 
 					if (Player->GetState().Gamepad.wButtons & XINPUT_GAMEPAD_BACK)
 					{
@@ -294,6 +329,7 @@ error:
 		coutMessage(EnterData, "Enter file patch: ");
 		cin >> replayPatch;
 		SetColor(LightGray);
+		system("pause");
 		system("cls");
 
 		thread sendMesThr(sendMessageThread, Player, &serial, sMode, wMode, legoArduinoMode);

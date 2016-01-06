@@ -232,6 +232,9 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 	int posX;
 	int posY;
 
+	clock_t inp_time = 0;
+	clock_t inp_prev_time = 0;
+
 	auto getPosFunc = [](int stickMode, int *posX, int *posY, CXBOXController *Player)
 	{
 		switch (stickMode)
@@ -366,6 +369,7 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 					recordinPatch << SLEEP_MSEC << endl;
 					recordinPatch << ARDUINO_MODE << endl;
 					recordinPatch << MESSAGE_HEADER << endl;
+					recordinPatch << SPEED_MODE << endl;
 					recordinPatch << recPosX.size() << endl;
 
 					for (int i = 0;i < recPosX.size();i++)
@@ -419,10 +423,16 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 					break;
 			}
 
-			if(mode != ARDUINO_MODE)
-				MESSAGE_HEADER = MESSAGE_HEADER_PROPORTIONAL;
+			if (mode != ARDUINO_MODE)
+			{
+				MESSAGE_HEADER = MESSAGE_HEADER_STANDART;
+				SPEED_MODE = SPEED_MODE_STANDART;
+			}
 			else
+			{
 				replay >> MESSAGE_HEADER;
+				replay >> SPEED_MODE;
+			}
 
 			message[0] = MESSAGE_HEADER;
 			replay >> size;
@@ -440,40 +450,40 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 
 			for (int i = 0;i < size;i++)
 			{
-				if ((abs(recPosX[i]) < 129) && (abs(recPosY[i]) < 129) && OPTIMIZE_PATCH) continue;
-
-				cls();
-
-				SetColor(White);
-				cout << "Work mode: " << workMode << endl;
-				SetColor(LightGray);
-
-				motorsControllArduino(recPosX[i], recPosY[i], &message[1], &message[2], &message[3], &message[4]);
-				serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));
-
-				coutMessage(Line);
-
-				SetColor(Green);
-				cout << setw(3) << left << (int)(message[1]);
-				SetColor(LightGray);
-				cout << " - ";
-				SetColor(Green);
-				cout << setw(3) << left << (int)(message[2]);
-				SetColor(LightGray);
-				cout << " - ";
-				SetColor(Green);
-				cout << setw(3) << left << (int)(message[3]);
-				SetColor(LightGray);
-				cout << " - ";
-				SetColor(Green);
-				cout << setw(3) << left << (int)(message[4]);
-					
 				time = clock();
-				cout << " delay: " << (time - prev_time) - 100 << endl;	//Why -100? Just a planned 
-				prev_time = time;
+				inp_time = clock();
+				if ((inp_time - inp_prev_time) >= INPUT_DELAY_MS)
+				{
+					inp_prev_time = inp_time;
 
-				coutMessage(Line);
-				
+					cls();
+
+					SetColor(White);
+					cout << "Work mode: " << workMode << endl;
+					SetColor(LightGray);
+
+					coutMessage(Line);
+
+					SetColor(Green);
+					cout << setw(3) << left << (int)(message[1]);
+					SetColor(LightGray);
+					cout << " - ";
+					SetColor(Green);
+					cout << setw(3) << left << (int)(message[2]);
+					SetColor(LightGray);
+					cout << " - ";
+					SetColor(Green);
+					cout << setw(3) << left << (int)(message[3]);
+					SetColor(LightGray);
+					cout << " - ";
+					SetColor(Green);
+					cout << setw(3) << left << (int)(message[4]);
+
+					cout << " delay: " << (time - prev_time) << endl;
+
+					coutMessage(Line);
+				}
+
 				//-------------------------------------
 				int x = (i * 20) / (size);
 
@@ -499,9 +509,14 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 				cout << "| " << setw(3) << left << (int)((float)(i) / (size - 1) * 100) << "%";
 				SetColor(LightGray);
 				//-------------------------------------
-				
-				Sleep(SLEEP_MSEC);
 
+				if ((abs(recPosX[i]) < 129) && (abs(recPosY[i]) < 129) && OPTIMIZE_PATCH) continue;
+
+				motorsControllArduino(recPosX[i], recPosY[i], &message[1], &message[2], &message[3], &message[4]);
+				serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));
+
+				Sleep(SLEEP_MSEC);
+				prev_time = time;
 			}
 			cout << endl;
 
@@ -672,7 +687,10 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 			}
 
 			if (mode != LEGO_MODE)
+			{
 				replay >> header;
+				replay >> SPEED_MODE;
+			}
 
 			replay >> size;
 
@@ -692,75 +710,47 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 
 			for (int i = 0;i < size;i++)
 			{
-				if ((abs(recPosX[i]) < 129) && (abs(recPosY[i]) < 129) && OPTIMIZE_PATCH) continue;
-
-				cls();
-
-				SetColor(White);
-				cout << "Work mode: " << workMode << endl;
-				SetColor(LightGray);
-
-				motorsControllLego(legoMotors, LEGO_MASS_LEN, recPosX[i], recPosY[i]);
-
-				for (int i = 0;i < LEGO_MASS_LEN;i++)
+				time = clock();
+				inp_time = clock();
+				if ((inp_time - inp_prev_time) >= INPUT_DELAY_MS)
 				{
-					if (legoMotors[i].getMotorState())
+					inp_prev_time = inp_time;
+
+					cls();
+
+					SetColor(White);
+					cout << "Work mode: " << workMode << endl;
+					SetColor(LightGray);
+
+					coutMessage(Line);
+
+					for (int i = 0;i < LEGO_MASS_LEN;i++)
 					{
 						if (legoMotors[i].getRole() == Turning)
-						{
-							unsigned char message[] = { 13, 0, 0, 0,
-								DIRECT_COMMAND_NO_REPLY,
-								0, 0,
-								opOUTPUT_POSITION, LC0(0), LC0(legoMotors[i].getMotorNumb()), LC1(legoMotors[i].getSpeed()),
-								opOUTPUT_START, LC0(0), LC0(legoMotors[i].getMotorNumb()) };
-
-							serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));
-						}
+							cout << setw(3) << left << legoMotors[i].getAngle() << " | ";
 						else
-						{
-							unsigned char message[] = { 13, 0, 0, 0,
-								DIRECT_COMMAND_NO_REPLY,
-								0, 0,
-								opOUTPUT_SPEED, LC0(0), LC0(legoMotors[i].getMotorNumb()), LC1(legoMotors[i].getSpeed()),
-								opOUTPUT_START, LC0(0), LC0(legoMotors[i].getMotorNumb()) };
-
-							serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));
-						}
+							cout << setw(3) << left << legoMotors[i].getSpeed() << " | ";
 					}
+
+					cout << "delay: " << (time - prev_time) << endl;
+
+					coutMessage(Line);
 				}
-
-				coutMessage(Line);
-
-				for (int i = 0;i < LEGO_MASS_LEN;i++)
-				{
-					if (legoMotors[i].getRole() == Turning)
-						cout << setw(3) << left << legoMotors[i].getAngle() << " | ";
-					else
-						cout << setw(3) << left << legoMotors[i].getSpeed() << " | ";
-				}
-
-				time = clock();
-				cout << "delay: " << (time - prev_time) - 100 << endl; //Why -100? Just a planned 
-				prev_time = time;
-
-
-				coutMessage(Line);
-
 				//-------------------------------------
 				int x = (i * 20) / (size);
 
 				char indicator[21];
 
 				for (int a = 0;a < 20;a++)
-				{
-					if (a < x)
-						indicator[a] = '=';
-					else if (a == x)
-						indicator[a] = '>';
-					else
-						indicator[a] = ' ';
+					{
+						if (a < x)
+							indicator[a] = '=';
+						else if (a == x)
+							indicator[a] = '>';
+						else
+							indicator[a] = ' ';
 
-				}
+					}
 				indicator[20] = '\0';
 
 				SetColor(White);
@@ -772,8 +762,38 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 				SetColor(LightGray);
 				//-------------------------------------
 
-				Sleep(SLEEP_MSEC);
+				if ((abs(recPosX[i]) < 129) && (abs(recPosY[i]) < 129) && OPTIMIZE_PATCH) continue;
 
+				motorsControllLego(legoMotors, LEGO_MASS_LEN, recPosX[i], recPosY[i]);
+
+				for (int i = 0;i < LEGO_MASS_LEN;i++)
+					{
+						if (legoMotors[i].getMotorState())
+						{
+							if (legoMotors[i].getRole() == Turning)
+							{
+								unsigned char message[] = { 13, 0, 0, 0,
+									DIRECT_COMMAND_NO_REPLY,
+									0, 0,
+									opOUTPUT_POSITION, LC0(0), LC0(legoMotors[i].getMotorNumb()), LC1(legoMotors[i].getSpeed()),
+									opOUTPUT_START, LC0(0), LC0(legoMotors[i].getMotorNumb()) };
+
+								serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));
+							}
+							else
+							{
+								unsigned char message[] = { 13, 0, 0, 0,
+									DIRECT_COMMAND_NO_REPLY,
+									0, 0,
+									opOUTPUT_SPEED, LC0(0), LC0(legoMotors[i].getMotorNumb()), LC1(legoMotors[i].getSpeed()),
+									opOUTPUT_START, LC0(0), LC0(legoMotors[i].getMotorNumb()) };
+
+								serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));
+							}
+						}
+					}
+
+				Sleep(SLEEP_MSEC);
 				prev_time = time;
 			}
 			cout << endl;

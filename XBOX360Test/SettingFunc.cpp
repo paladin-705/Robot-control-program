@@ -75,9 +75,9 @@ void changeSetting()
 				{
 					ofstream settingFileS("legoMotorsSetting.ini");
 					settingFileS << "MOTOR_A: " << 0 << " " << 0 << " " << "L" << endl;
-					settingFileS << "MOTOR_B: " << 0 << " " << 0 << " " << "L" << endl;
-					settingFileS << "MOTOR_C: " << 0 << " " << 0 << " " << "L" << endl;
-					settingFileS << "MOTOR_D: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS << "MOTOR_B: " << 0 << " " << 1 << " " << "R" << endl;
+					settingFileS << "MOTOR_C: " << 1 << " " << 0 << " " << "A" << endl;
+					settingFileS << "MOTOR_D: " << 1 << " " << 1 << " " << "A" << endl;
 					settingFileS.close();
 
 					system("cls");
@@ -110,9 +110,9 @@ void changeSetting()
 				{
 					ofstream settingFileS("legoMotorsSetting.ini");
 					settingFileS << "MOTOR_A: " << 0 << " " << 0 << " " << "L" << endl;
-					settingFileS << "MOTOR_B: " << 0 << " " << 0 << " " << "L" << endl;
-					settingFileS << "MOTOR_C: " << 0 << " " << 0 << " " << "L" << endl;
-					settingFileS << "MOTOR_D: " << 0 << " " << 0 << " " << "L" << endl;
+					settingFileS << "MOTOR_B: " << 0 << " " << 1 << " " << "R" << endl;
+					settingFileS << "MOTOR_C: " << 1 << " " << 0 << " " << "A" << endl;
+					settingFileS << "MOTOR_D: " << 1 << " " << 1 << " " << "A" << endl;
 					settingFileS.close();
 
 					system("cls");

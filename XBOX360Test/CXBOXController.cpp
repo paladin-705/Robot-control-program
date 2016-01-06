@@ -2,7 +2,7 @@
 
 CXBOXController::CXBOXController(int playerNumber)
 {
-	// Set the Controller Number
+	//Set the Controller Number
 	_controllerNum = playerNumber - 1;
 }
 

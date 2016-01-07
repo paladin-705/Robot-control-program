@@ -39,7 +39,8 @@ int main()
 	int nmbGmpd;
 	int sMode;
 	int wMode;
-	wchar_t buffPortName[7];
+	wchar_t portName[16];
+	wchar_t buffPortName[8];
 
 	coutMessage(Header, "Program mode: ");
 	cout << "0-Lego Mode" << endl;
@@ -93,8 +94,11 @@ reconnectToComPort:
 	coutMessage(EnterData, "Enter COM port number(COM_): ");
 	wcin >> buffPortName;
 
+	wcscpy(portName, L"\\\\.\\");
+	wcscat(portName, buffPortName);
+	
 	//---------------------------
-	serial.setCOMname(buffPortName);
+	serial.setCOMname(portName);
 
 	auto reconectedComPortFunc = []()->bool {
 		string buff;

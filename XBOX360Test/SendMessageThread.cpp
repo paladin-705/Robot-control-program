@@ -78,8 +78,8 @@ void motorsControllArduino(int buffPosX, int buffPosY, unsigned char *directionL
 	{
 		int angle = MAX_ANGLE * posX;
 
-		if (posX < 0) {
-			*speedRight = (-1)*angle;
+		if (buffPosX < 0) {
+			*speedRight = angle;
 			*directionR = BCKWRD;
 		}
 		else
@@ -92,7 +92,7 @@ void motorsControllArduino(int buffPosX, int buffPosY, unsigned char *directionL
 		if (buffPosY < 0) {
 			*directionL = BCKWRD;
 		}
-		else if (buffPosY>0) {
+		else {
 			*directionL = FRWRD;
 		}
 	}
@@ -103,8 +103,8 @@ void motorsControllLego(LegoMotors *legoMotors, int length, int buffPosX, int bu
 	const bool FRWRD_LEGO = true;
 	const bool BCKWRD_LEGO = false;
 
-	int speedRight, speedLeft, angle;
-	int directionL, directionR, directionA;
+	int speedRight, speedLeft, angle, speedA;
+	int directionL, directionR, directionA, directionSA;
 
 	float posX = fabs(buffPosX / (float)(GAMEPAD_MAXPOS));
 	float posY = fabs(buffPosY / (float)(GAMEPAD_MAXPOS));
@@ -172,7 +172,7 @@ void motorsControllLego(LegoMotors *legoMotors, int length, int buffPosX, int bu
 	//-----------Turning------------------
 	angle = MAX_ANGLE * posX;
 
-	if (posX < 0) {
+	if (buffPosX < 0) {
 		speedRight = (-1)*angle;
 		directionA = BCKWRD_LEGO;
 	}
@@ -182,46 +182,76 @@ void motorsControllLego(LegoMotors *legoMotors, int length, int buffPosX, int bu
 		directionA = FRWRD_LEGO;
 	}
 
-	speedLeft = MAX_SPEED_LEGO * posY;
 	if (buffPosY < 0) {
 		directionA = BCKWRD_LEGO;
 	}
 	else if (buffPosY>0) {
 		directionA = FRWRD_LEGO;
 	}
+
+	speedA = MAX_SPEED_LEGO * posY;
+	if (buffPosY < 0) {
+		directionSA = BCKWRD_LEGO;
+	}
+	else {
+		directionSA = FRWRD_LEGO;
+	}
 	//------------------------------------
 
 	if (directionL == BCKWRD_LEGO) speedLeft *= (-1);
 	if (directionR == BCKWRD_LEGO) speedRight *= (-1);
 	if (directionA == BCKWRD_LEGO) angle *= (-1);
+	if (directionSA == BCKWRD_LEGO) speedA *= (-1);
 
 	for (int i = 0;i < length;i++)
 	{
-		if (legoMotors->getMotorState())
+		if (SPEED_MODE != SPEED_MODE_TURNING)
 		{
-			if (legoMotors->getRole() == Left)
+			if (legoMotors->getMotorState())
 			{
-				if (legoMotors->getInvertState())
-					legoMotors->setSpeed(((-1)*speedLeft));
-				else
-					legoMotors->setSpeed(speedLeft);
-			}
-			if (legoMotors->getRole() == Right)
-			{
-				if (legoMotors->getInvertState())
-					legoMotors->setSpeed((-1)*(speedRight));
-				else
-					legoMotors->setSpeed(speedRight);
-			}
-			if (legoMotors->getRole() == Turning)
-			{
-				if (legoMotors->getInvertState())
-					legoMotors->setAngle((-1)*(angle));
-				else
-					legoMotors->setAngle(angle);
+				if (legoMotors->getRole() == Left)
+				{
+					if (legoMotors->getInvertState())
+						legoMotors->setSpeed(((-1)*speedLeft));
+					else
+						legoMotors->setSpeed(speedLeft);
+				}
+				if (legoMotors->getRole() == Right)
+				{
+					if (legoMotors->getInvertState())
+						legoMotors->setSpeed((-1)*(speedRight));
+					else
+						legoMotors->setSpeed(speedRight);
+				}
+				if (legoMotors->getRole() == Turning)
+				{
+					if (legoMotors->getInvertState())
+						legoMotors->setAngle((-1)*(angle));
+					else
+						legoMotors->setAngle(angle);
+				}
 			}
 		}
-		
+		else
+		{
+			if (legoMotors->getMotorState())
+			{
+				if (legoMotors->getRole() == Right || legoMotors->getRole() == Left)
+				{
+					if (legoMotors->getInvertState())
+						legoMotors->setSpeed((-1)*(speedA));
+					else
+						legoMotors->setSpeed(speedA);
+				}
+				if (legoMotors->getRole() == Turning)
+				{
+					if (legoMotors->getInvertState())
+						legoMotors->setAngle((-1)*(angle));
+					else
+						legoMotors->setAngle(angle);
+				}
+			}
+		}
 		legoMotors++;
 	}
 }

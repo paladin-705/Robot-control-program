@@ -173,12 +173,12 @@ void motorsControllLego(LegoMotors *legoMotors, int length, int buffPosX, int bu
 	angle = MAX_ANGLE * posX;
 
 	if (buffPosX < 0) {
-		speedRight = (-1)*angle;
+		speedA = (-1)*angle;
 		directionA = BCKWRD_LEGO;
 	}
 	else
 	{
-		speedRight = angle;
+		speedA = angle;
 		directionA = FRWRD_LEGO;
 	}
 
@@ -581,13 +581,13 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 					{
 						if (legoMotors[i].getRole() == Turning)
 						{
-							unsigned char message[] = { 13, 0, 0, 0,
+							/*unsigned char message[] = { 13, 0, 0, 0,
 								DIRECT_COMMAND_NO_REPLY,
 								0, 0,
-								opOUTPUT_POSITION, LC0(0), LC0(legoMotors[i].getMotorNumb()), LC1(legoMotors[i].getSpeed()),
+								opOUTPUT_SPEED, LC0(0), LC0(legoMotors[i].getMotorNumb()), LC1(legoMotors[i].getSpeed()),
 								opOUTPUT_START, LC0(0), LC0(legoMotors[i].getMotorNumb()) };
 
-							serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));
+							serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));*/
 						}
 						else
 						{
@@ -606,6 +606,18 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 
 				Sleep(SLEEP_MSEC);
 			} while (!flgStop);
+
+			//Stopping motors:
+			for (int i = 0;i < LEGO_MASS_LEN;i++)
+			{
+				if (legoMotors[i].getMotorState())
+				{
+					char ev3_motor_stop[] = { 0x09,0x00,0x01,0x00,0x80,0x00,0x00,opOUTPUT_STOP,0x00,legoMotors[i].getMotorNumb(),0x00 };
+
+					serial->cSend(ev3_motor_stop, (sizeof(ev3_motor_stop) / (sizeof(ev3_motor_stop[0]))));
+				}
+			}
+
 			break;
 		}
 		case 1:
@@ -637,6 +649,7 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 
 					recordinPatch << SLEEP_MSEC << endl;
 					recordinPatch << LEGO_MODE << endl;
+					recordinPatch << SPEED_MODE << endl;
 					recordinPatch << recPosX.size() << endl;
 
 					for (int i = 0;i < recPosX.size();i++)
@@ -657,13 +670,13 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 					{
 						if (legoMotors[i].getRole() == Turning)
 						{
-							unsigned char message[] = { 13, 0, 0, 0,
+							/*unsigned char message[] = { 13, 0, 0, 0,
 								DIRECT_COMMAND_NO_REPLY,
 								0, 0,
 								opOUTPUT_POSITION, LC0(0), LC0(legoMotors[i].getMotorNumb()), LC1(legoMotors[i].getSpeed()),
 								opOUTPUT_START, LC0(0), LC0(legoMotors[i].getMotorNumb()) };
 
-							serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));
+							serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));*/
 						}
 						else
 						{
@@ -686,6 +699,17 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 
 				Sleep(SLEEP_MSEC);
 			} while (!flgStop);
+
+			//Stopping motors:
+			for (int i = 0;i < LEGO_MASS_LEN;i++)
+			{
+				if (legoMotors[i].getMotorState())
+				{
+					char ev3_motor_stop[] = { 0x09,0x00,0x01,0x00,0x80,0x00,0x00,opOUTPUT_STOP,0x00,legoMotors[i].getMotorNumb(),0x00 };
+
+					serial->cSend(ev3_motor_stop, (sizeof(ev3_motor_stop) / (sizeof(ev3_motor_stop[0]))));
+				}
+			}
 
 			break;
 		}
@@ -719,6 +743,10 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 			if (mode != LEGO_MODE)
 			{
 				replay >> header;
+				replay >> SPEED_MODE;
+			}
+			else
+			{
 				replay >> SPEED_MODE;
 			}
 
@@ -802,13 +830,13 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 						{
 							if (legoMotors[i].getRole() == Turning)
 							{
-								unsigned char message[] = { 13, 0, 0, 0,
+								/*unsigned char message[] = { 13, 0, 0, 0,
 									DIRECT_COMMAND_NO_REPLY,
 									0, 0,
 									opOUTPUT_POSITION, LC0(0), LC0(legoMotors[i].getMotorNumb()), LC1(legoMotors[i].getSpeed()),
 									opOUTPUT_START, LC0(0), LC0(legoMotors[i].getMotorNumb()) };
 
-								serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));
+								serial->cSend(message, (sizeof(message) / (sizeof(message[0]))));*/
 							}
 							else
 							{
@@ -828,6 +856,17 @@ void sendMessageThread(CXBOXController *Player, Serial *serial, int stickMode, i
 			}
 			cout << endl;
 
+			//Stopping motors:
+			for (int i = 0;i < LEGO_MASS_LEN;i++)
+			{
+				if (legoMotors[i].getMotorState())
+				{
+					char ev3_motor_stop[] = { 0x09,0x00,0x01,0x00,0x80,0x00,0x00,opOUTPUT_STOP,0x00,legoMotors[i].getMotorNumb(),0x00 };
+
+					serial->cSend(ev3_motor_stop, (sizeof(ev3_motor_stop) / (sizeof(ev3_motor_stop[0]))));
+				}
+			}
+			
 			coutMessage(Line);
 
 			break;

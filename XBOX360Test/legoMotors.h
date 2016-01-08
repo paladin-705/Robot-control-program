@@ -16,9 +16,11 @@
 #define	  opOUTPUT_POWER		0xA4	//  10100100
 #define	  opOUTPUT_POSITION		0xAB	//  10101011
 #define   opOUTPUT_START		0xA6	//  10100110
+#define	  opOUTPUT_STOP			0xA3	//  10100011
 
 #define   LC0(v)                        ((v & PRIMPAR_VALUE) | PRIMPAR_SHORT | PRIMPAR_CONST)
 #define   LC1(v)                        (PRIMPAR_LONG  | PRIMPAR_CONST | PRIMPAR_1_BYTE),(v & 0xFF)
+
 //----------------------------
 
 enum MotorNumb

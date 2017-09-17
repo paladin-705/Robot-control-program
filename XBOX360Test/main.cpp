@@ -372,8 +372,8 @@ void enterGamepadMode(int *nmbGmpd, int *sMode)
 	coutMessage(Header, "Control mode: ");
 
 	std::cout << "0-Left stick" << std::endl;
-	std::cout << "1-Left(Y axis) and Right(X axis) stick)" << std::endl;
-	std::cout << "2-Left(X axis) and Right(Y axis) stick)" << std::endl;
+	std::cout << "1-Left(Y axis) and Right(X axis) stick" << std::endl;
+	std::cout << "2-Left(X axis) and Right(Y axis) stick" << std::endl;
 	std::cout << "3-Right stick" << std::endl;
 	
 	coutMessage(Line);
